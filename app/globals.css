@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #F3E7E0;
+  --cream-deep: #E7D5CB;
+  --ink: #1E1E1E;
+  --crimson: #FF4D39;
+  --crimson-deep: #E63522;
+}
+
+html, body {
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Subtle paper grain — adds analog texture under everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0 0.03 0 0 0 0.10 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 240px;
+}
+
+/* Selection: hot red */
+::selection { background: var(--crimson); color: var(--cream); }
+
+/* Marquee track has 2× content; translate -50% loops seamlessly */
+.marquee-track { width: max-content; display: flex; gap: 0; }
+
+/* Perforated dashed border in red (like a ticket) */
+.perf-bottom {
+  background-image: linear-gradient(to right, var(--crimson) 50%, transparent 50%);
+  background-size: 14px 2px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
+.perf-top {
+  background-image: linear-gradient(to right, var(--crimson) 50%, transparent 50%);
+  background-size: 14px 2px;
+  background-repeat: repeat-x;
+  background-position: top;
+}
+
+/* Stamp pseudo-element — for HIT, NEW, etc */
+.stamp {
+  display: inline-block;
+  border: 2px solid currentColor;
+  padding: 4px 10px 2px;
+  letter-spacing: 0.08em;
+  font-family: var(--font-oswald);
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  position: relative;
+}
+.stamp::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='30'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23r)'/></svg>");
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* Squared-off pill button (Roberta's-ish) */
+.btn-primary {
+  background: var(--crimson);
+  color: var(--cream);
+  border: 2px solid var(--ink);
+  font-family: var(--font-oswald);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 14px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--crimson-deep);
+}
+.btn-primary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+.btn-secondary {
+  background: var(--cream);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  font-family: var(--font-oswald);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 14px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.btn-secondary:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+
+/* Editorial section labels */
+.eyebrow {
+  font-family: var(--font-oswald);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Display headline tightening — big Oswald wants tight tracking + height */
+.display {
+  font-family: var(--font-oswald);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 0.86;
+}
+
+/* Wide editorial single words */
+.wide {
+  font-family: var(--font-unbounded);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Pull-quote serif italic */
+.quote {
+  font-family: var(--font-lora);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Hover lift for cards */
+.card-lift {
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s ease;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+/* Floating dotted divider */
+.dotline {
+  height: 2px;
+  background-image: radial-gradient(circle, var(--ink) 1.5px, transparent 1.6px);
+  background-size: 14px 14px;
+  background-position: 0 50%;
+  background-repeat: repeat-x;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--cream-deep); }
+::-webkit-scrollbar-thumb { background: var(--ink); border: 2px solid var(--cream-deep); }
+::-webkit-scrollbar-thumb:hover { background: var(--crimson); }
+
+/* Focus rings */
+:focus-visible {
+  outline: 3px solid var(--crimson);
+  outline-offset: 2px;
+}
+
+/* Menu card image — per-item scale via CSS var */
+.card-img { transform: scale(var(--imgScale, 1.4)); transform-origin: center; }
+.group:hover .card-img { transform: scale(calc(var(--imgScale, 1.4) * 1.06)); }
+
+/* Form inputs */
+.input {
+  width: 100%;
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  transition: background 0.15s ease;
+}
+.input::placeholder { color: rgba(30, 30, 30, 0.4); }
+.input:focus { background: var(--cream-deep); outline: none; box-shadow: 4px 4px 0 var(--crimson); }
+
+/* Sticky cart shake on add */
+@keyframes cart-shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg) scale(1.1); }
+  75% { transform: rotate(10deg) scale(1.1); }
+}
+.cart-shake { animation: cart-shake 0.4s ease; }
+
+/* Diagonal ribbon */
+.ribbon {
+  position: absolute;
+  top: 14px;
+  right: -38px;
+  transform: rotate(35deg);
+  background: var(--crimson);
+  color: var(--cream);
+  font-family: var(--font-oswald);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 44px;
+  font-size: 13px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}

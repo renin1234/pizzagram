@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.env
+.env.local
+.DS_Store
+*.log
+.pending-orders
+.tmp-photos
+tsconfig.tsbuildinfo
+.claude/settings.local.json
