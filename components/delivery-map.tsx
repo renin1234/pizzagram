@@ -58,12 +58,15 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
   const mapInstRef = useRef<any>(null);
   const placemarkRef = useRef<any>(null);
   const onResultRef = useRef(onResult);
-  onResultRef.current = onResult;
-  const reverseGeocodeRef = useRef<(c: [number, number]) => void>();
+  const reverseGeocodeRef = useRef<((c: [number, number]) => void) | undefined>(
+    undefined,
+  );
   // Не показывать подсказки, когда поле заполняется программно (после выбора).
   const lockSuggestRef = useRef(false);
 
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    YMAPS_KEY ? "loading" : "error",
+  );
   const [result, setResult] = useState<AddressResult | null>(null);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -136,7 +139,11 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
     },
     [applyPoint],
   );
-  reverseGeocodeRef.current = reverseGeocode;
+  // Держим в ref-ах свежие колбэки для обработчиков карты (клик, перетаскивание метки).
+  useEffect(() => {
+    onResultRef.current = onResult;
+    reverseGeocodeRef.current = reverseGeocode;
+  });
 
   /** Текстовый поиск адреса — по кнопке «Найти» или Enter. */
   const runSearch = useCallback(
@@ -177,6 +184,7 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
     }
     const term = query.trim();
     if (term.length < 3) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions([]);
       return;
     }
@@ -204,10 +212,7 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
   // Отрисовка карты Яндекса. Геокодинг идёт мимо неё — через /api/geocode,
   // поэтому поиск адреса работает, даже если карта не загрузилась.
   useEffect(() => {
-    if (!YMAPS_KEY) {
-      setStatus("error");
-      return;
-    }
+    if (!YMAPS_KEY) return;
     let destroyed = false;
 
     loadYmaps()
@@ -282,7 +287,6 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
       placemarkRef.current = null;
       ymapsRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compact]);
 
   return (

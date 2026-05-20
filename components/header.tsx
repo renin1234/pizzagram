@@ -30,6 +30,8 @@ export default function Header() {
 
   useEffect(() => {
     if (pulse === 0) return;
+    // Триггер анимации тряски при изменении счётчика добавлений в корзину.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShake(true);
     const t = setTimeout(() => setShake(false), 420);
     return () => clearTimeout(t);

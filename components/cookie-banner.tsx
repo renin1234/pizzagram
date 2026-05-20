@@ -11,6 +11,8 @@ export default function CookieBanner() {
 
   useEffect(() => {
     try {
+      // localStorage есть только на клиенте — читаем его в эффекте после монтирования.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (!localStorage.getItem(STORAGE_KEY)) setShow(true);
     } catch {}
   }, []);

@@ -45,15 +45,15 @@ export default function CartDrawer() {
     };
   }, [open]);
 
-  // Самовывоз не поддерживает оплату картой курьеру.
-  useEffect(() => {
-    if (method === "pickup" && payment === "card_courier") setPayment("online");
-  }, [method, payment]);
-
-  // При переключении на самовывоз сбрасываем выбранный адрес доставки.
-  useEffect(() => {
-    if (method === "pickup") setDelivery(null);
-  }, [method]);
+  // Переключение способа получения. Самовывоз сбрасывает выбранный адрес
+  // и оплату картой курьеру (она доступна только для доставки).
+  const selectMethod = (m: Method) => {
+    setMethod(m);
+    if (m === "pickup") {
+      setDelivery(null);
+      setPayment((p) => (p === "card_courier" ? "online" : p));
+    }
+  };
 
   const discount = 0;
   const deliveryZone = method === "delivery" ? delivery?.zone ?? null : null;
@@ -130,7 +130,7 @@ export default function CartDrawer() {
         }
         if (data.paymentUrl) {
           clear();
-          window.location.href = data.paymentUrl;
+          window.location.assign(data.paymentUrl);
           return;
         }
         // PayKeeper не настроен — показываем «успех» и предупреждение про симуляцию.
@@ -212,7 +212,7 @@ export default function CartDrawer() {
             <CheckoutForm
               name={name} setName={setName}
               phone={phone} setPhone={setPhone}
-              method={method} setMethod={setMethod}
+              method={method} setMethod={selectMethod}
               payment={payment} setPayment={setPayment}
               comment={comment} setComment={setComment}
               delivery={delivery} setDelivery={setDelivery}
