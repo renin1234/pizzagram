@@ -85,26 +85,11 @@ export default function Footer() {
                 icon="/icon-instagram.png"
                 label="Instagram @pizzagram_krd"
               />
-              <a
+              <SocialIcon
                 href="https://t.me/pizzagram_krd"
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 px-3 border-2 border-cream/40 hover:border-crimson hover:bg-crimson flex items-center justify-center transition-colors text-[10px] font-display tracking-wider"
-                aria-label="Telegram-канал @pizzagram_krd"
-                title="Telegram-канал @pizzagram_krd"
-              >
-                КАНАЛ
-              </a>
-              <a
-                href="https://yandex.ru/maps/org/pizzagram/181221150144/"
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 border-2 border-cream/40 hover:border-crimson hover:bg-crimson flex items-center justify-center transition-colors text-xs font-display"
-                aria-label="Яндекс.Карты"
-                title="Pizzagram на Яндекс.Картах"
-              >
-                Я
-              </a>
+                icon="/icon-telegram.png"
+                label="Telegram-канал @pizzagram_krd"
+              />
             </div>
           </div>
 

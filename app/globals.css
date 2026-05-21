@@ -61,7 +61,7 @@ body::before {
   border: 2px solid currentColor;
   padding: 4px 10px 2px;
   letter-spacing: 0.08em;
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   font-weight: 700;
   text-transform: uppercase;
   transform: rotate(-6deg);
@@ -81,7 +81,7 @@ body::before {
   background: var(--crimson);
   color: var(--cream);
   border: 2px solid var(--ink);
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
@@ -103,7 +103,7 @@ body::before {
   background: var(--cream);
   color: var(--ink);
   border: 2px solid var(--ink);
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
@@ -124,16 +124,16 @@ body::before {
 
 /* Editorial section labels */
 .eyebrow {
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 13px;
   font-weight: 600;
 }
 
-/* Display headline tightening — big Oswald wants tight tracking + height */
+/* Display headline tightening — big Inter Tight headline wants tight tracking + height */
 .display {
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: -0.005em;
@@ -142,14 +142,14 @@ body::before {
 
 /* Wide editorial single words */
 .wide {
-  font-family: var(--font-unbounded);
+  font-family: var(--font-inter-tight);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-/* Pull-quote serif italic */
+/* Pull-quote italic */
 .quote {
-  font-family: var(--font-lora);
+  font-family: var(--font-inter-tight);
   font-style: italic;
   font-weight: 500;
 }
@@ -218,7 +218,7 @@ body::before {
   transform: rotate(35deg);
   background: var(--crimson);
   color: var(--cream);
-  font-family: var(--font-oswald);
+  font-family: var(--font-inter-tight);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;

@@ -1,31 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Oswald, Unbounded, Inter_Tight, Lora } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
 import CookieBanner from "@/components/cookie-banner";
 import "./globals.css";
 
-const oswald = Oswald({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-oswald",
-  display: "swap",
-});
-const unbounded = Unbounded({
-  subsets: ["latin", "cyrillic"],
-  weight: ["500", "700", "800", "900"],
-  variable: "--font-unbounded",
-  display: "swap",
-});
 const interTight = Inter_Tight({
   subsets: ["latin", "cyrillic"],
   weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-inter-tight",
-  display: "swap",
-});
-const lora = Lora({
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
-  variable: "--font-lora",
+  variable: "--font-inter-tight",
   display: "swap",
 });
 
@@ -50,10 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="ru"
-      className={`${oswald.variable} ${unbounded.variable} ${interTight.variable} ${lora.variable}`}
-    >
+    <html lang="ru" className={interTight.variable}>
       <body className="font-body antialiased">
         {children}
         <CookieBanner />

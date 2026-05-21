@@ -32,7 +32,7 @@ export default function Hero() {
             <div className="mt-8 max-w-xl flex items-start gap-5 animate-rise" style={{ animationDelay: "260ms" }}>
               <div className="hidden sm:block w-1.5 self-stretch bg-crimson mt-1" />
               <p className="quote text-[18px] leading-relaxed text-ink/85">
-                Мы лепим тесто руками с 11 утра. Печём в раскалённой печи 90 секунд.
+                Мы лепим тесто руками с 11 утра. Печём в раскалённой печи 3–4 минуты.
                 Отдаём с пылу-с-жару — курьерам, гостям и людям, которые забегают по дороге домой.
 Краснодар, ЖК «Светлоград», Красных Партизан 1/4 к.8. Открылись в 2025.
               </p>

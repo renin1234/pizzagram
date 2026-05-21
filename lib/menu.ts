@@ -77,7 +77,7 @@ export const menu: MenuItem[] = [
     sizes: [{ label: "32 см", price: 400 }],
     image: "https://static.tildacdn.com/tild3938-3933-4539-a635-376634363036/_.png",
     feature: true,
-    imgScale: 1.05,
+    imgScale: 1.4,
   },
   {
     id: "pizza-cesar",

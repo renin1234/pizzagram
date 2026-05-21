@@ -18,10 +18,10 @@ const config: Config = {
         smoke: "#7A6E66",
       },
       fontFamily: {
-        display: ["var(--font-oswald)", "Impact", "sans-serif"],
-        wide: ["var(--font-unbounded)", "system-ui", "sans-serif"],
+        display: ["var(--font-inter-tight)", "system-ui", "sans-serif"],
+        wide: ["var(--font-inter-tight)", "system-ui", "sans-serif"],
         body: ["var(--font-inter-tight)", "system-ui", "sans-serif"],
-        serif: ["var(--font-lora)", "Georgia", "serif"],
+        serif: ["var(--font-inter-tight)", "system-ui", "sans-serif"],
       },
       keyframes: {
         marquee: {

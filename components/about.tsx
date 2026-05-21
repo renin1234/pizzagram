@@ -17,7 +17,7 @@ export default function About() {
             <div className="mt-6 quote text-lg leading-relaxed text-ink/85 max-w-md space-y-4">
               <p>
                 Мы открылись в 2025 году в ЖК «Светлоград» — без громких слоганов
-                и инвесторов. Один зал, две печи, четыре человека на смене.
+                и инвесторов. Один зал, одна печь, два человека на кухне.
               </p>
               <p>
                 Мы научились делать тесто, которое хочется доесть до корочки,
@@ -37,7 +37,7 @@ export default function About() {
           <div className="col-span-12 lg:col-span-7 relative min-h-[480px]">
             <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-3">
               {/* big — about-1 */}
-              <div className="col-span-4 row-span-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              <div className="col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-1.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
@@ -46,15 +46,30 @@ export default function About() {
                   className="object-cover"
                 />
               </div>
-              {/* tall top — about-2 */}
-              <div className="col-span-2 row-span-3 col-start-5 row-start-1 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
-                <Image
-                  src="/gallery/about-2.jpg"
-                  alt="Pizzagram — пиццерия в Краснодаре"
-                  fill
-                  sizes="(min-width: 1024px) 20vw, 50vw"
-                  className="object-cover"
-                />
+              {/* top-right — видео-диптих: верхний и нижний слайсы вертикального ролика */}
+              <div className="col-span-2 row-span-3 col-start-5 row-start-1 flex flex-col gap-3">
+                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+                  <video
+                    src="/gallery/about-2.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    aria-label="Pizzagram — видео из пиццерии"
+                    className="absolute inset-0 h-full w-full object-cover object-top"
+                  />
+                </div>
+                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
+                  <video
+                    src="/gallery/about-2.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    aria-label="Pizzagram — видео из пиццерии"
+                    className="absolute inset-0 h-full w-full object-cover object-bottom"
+                  />
+                </div>
               </div>
               {/* tall bottom — about-3 */}
               <div className="col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
@@ -63,16 +78,6 @@ export default function About() {
                   alt="Pizzagram — пиццерия в Краснодаре"
                   fill
                   sizes="(min-width: 1024px) 20vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
-              {/* wide bottom — about-4 */}
-              <div className="col-span-4 row-span-2 col-start-1 row-start-5 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
-                <Image
-                  src="/gallery/about-4.jpg"
-                  alt="Pizzagram — зал пиццерии"
-                  fill
-                  sizes="(min-width: 1024px) 35vw, 90vw"
                   className="object-cover"
                 />
               </div>

@@ -2,14 +2,7 @@ import Image from "next/image";
 import { Star, Phone } from "lucide-react";
 
 // Фото из галереи Яндекс.Карт — файлы лежат в public/gallery/ (см. README там).
-const FEED = [
-  "/gallery/photo-1.jpg",
-  "/gallery/photo-2.jpg",
-  "/gallery/photo-3.jpg",
-  "/gallery/photo-4.jpg",
-  "/gallery/photo-5.jpg",
-  "/gallery/photo-6.jpg",
-];
+const FEED: string[] = [];
 
 const ORG_ID = "181221150144";
 

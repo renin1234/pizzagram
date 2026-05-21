@@ -23,7 +23,7 @@ export default function MenuSection() {
             </h2>
             <p className="quote text-lg text-ink/80 mt-4 max-w-xl">
               23 пиццы по фиксированной цене. Лепим тесто руками каждое утро,
-              печём 90 секунд при 460°C.
+              печём 3–4 минуты при 460°C.
             </p>
           </div>
 
@@ -65,10 +65,10 @@ export default function MenuSection() {
             </div>
           </div>
 
-          {/* Grid — flex с центровкой: неполный последний ряд стоит
-              посередине, по бокам — фон страницы (без тёмных блоков).
-              Линии сетки рисуют бордюры самих карточек. */}
-          <div className="flex flex-wrap justify-center border-x-2 border-b-2 border-ink">
+          {/* Grid — flex с центровкой: все карточки одного размера,
+              неполный последний ряд встаёт по центру. Внешней рамки нет,
+              поэтому пустых блоков по бокам не возникает. */}
+          <div className="flex flex-wrap justify-center">
             {items.map((item) => (
               <PizzaCard key={item.id} item={item} />
             ))}
