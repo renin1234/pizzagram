@@ -20,14 +20,12 @@ export default function PizzaModal({ item, onClose }: Props) {
   const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
   const [added, setAdded] = useState(false);
 
-  // Сброс состояния при смене товара
   useEffect(() => {
     setSizeIdx(0);
     setSelectedExtraIds(new Set());
     setAdded(false);
   }, [item?.id]);
 
-  // Scroll lock + Escape
   useEffect(() => {
     if (!item) return;
     document.body.style.overflow = "hidden";
@@ -64,85 +62,88 @@ export default function PizzaModal({ item, onClose }: Props) {
       extras: selectedExtras,
     });
     setAdded(true);
-    setTimeout(() => {
-      setAdded(false);
-      onClose();
-    }, 500);
+    setTimeout(() => { setAdded(false); onClose(); }, 500);
   };
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm"
+        className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden
       />
 
-      {/* Dialog */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 pointer-events-none">
+      {/* Позиционирование */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+
+        {/* Сам модал */}
         <div
           role="dialog"
           aria-modal="true"
           aria-label={item.name}
-          className="relative w-full max-w-2xl bg-cream border-2 border-ink shadow-[12px_12px_0_var(--ink)] pointer-events-auto max-h-[92vh] overflow-y-auto"
+          className="relative w-full max-w-3xl bg-cream border-2 border-ink shadow-[16px_16px_0_var(--ink)] flex flex-col sm:flex-row max-h-[92vh]"
         >
-          {/* Крестик */}
+
+          {/* ── Крестик ── */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center border-2 border-ink bg-cream hover:bg-crimson hover:text-cream transition-colors"
+            className="absolute -top-4 -right-4 z-20 w-10 h-10 rounded-full border-2 border-ink bg-cream flex items-center justify-center hover:bg-crimson hover:text-cream transition-colors shadow-[3px_3px_0_var(--ink)]"
             aria-label="Закрыть"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="grid sm:grid-cols-2">
-            {/* Фото */}
+          {/* ── Левая колонка: фото ── */}
+          <div className="sm:w-[300px] lg:w-[360px] shrink-0 bg-white flex items-center justify-center">
             <div
-              className="relative aspect-square bg-white overflow-hidden"
+              className="relative w-full aspect-square"
               style={{ ["--imgScale" as string]: item.imgScale ?? 1.4 }}
             >
               <Image
                 src={item.image}
                 alt={item.name}
                 fill
-                sizes="(min-width: 640px) 50vw, 100vw"
+                sizes="(min-width: 640px) 360px, 100vw"
                 className="object-cover card-img"
                 priority
               />
             </div>
+          </div>
 
-            {/* Детали */}
-            <div className="p-5 sm:p-6 flex flex-col gap-4">
+          {/* ── Правая колонка: детали + прокрутка ── */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+
+            {/* Скролл-область */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+
               {/* Название + badge */}
               <div>
                 {item.badge && (
-                  <span className="inline-block font-display uppercase text-[11px] tracking-widest text-crimson mb-1">
+                  <span className="inline-block font-display uppercase text-[10px] tracking-widest text-crimson border border-crimson px-2 py-0.5 mb-2">
                     {item.badge}
                   </span>
                 )}
                 <h2 className="font-display text-3xl sm:text-4xl uppercase leading-tight">
                   {item.name}
                 </h2>
-                <p className="quote text-[14px] text-ink/70 mt-2 leading-snug">
+                <p className="text-[13px] text-ink/60 mt-2 leading-snug">
                   {item.ingredients}
                 </p>
               </div>
 
-              {/* Размер */}
+              {/* Размер — только если несколько */}
               {item.sizes.length > 1 && (
                 <div>
-                  <div className="font-display uppercase tracking-widest text-[11px] text-smoke mb-2">
-                    Размер
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
+                  <p className="font-display uppercase tracking-widest text-[10px] text-smoke mb-2">Размер</p>
+                  <div className="flex flex-wrap gap-2">
                     {item.sizes.map((s, i) => (
                       <button
                         key={s.label}
                         type="button"
                         onClick={() => setSizeIdx(i)}
                         className={cn(
-                          "font-display uppercase tracking-wider text-[13px] px-3 py-2 min-h-[40px] border-2 border-ink transition-colors",
+                          "font-display uppercase text-[12px] tracking-wider px-4 py-2 rounded-full border-2 border-ink transition-colors",
                           i === sizeIdx ? "bg-ink text-cream" : "bg-cream hover:bg-cream-deep"
                         )}
                       >
@@ -156,54 +157,64 @@ export default function PizzaModal({ item, onClose }: Props) {
               {/* Добавки — только для пиццы */}
               {item.category === "pizza" && (
                 <div>
-                  <div className="font-display uppercase tracking-widest text-[11px] text-smoke mb-2">
-                    Добавить ингредиент
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {EXTRAS.map(e => (
-                      <button
-                        key={e.id}
-                        type="button"
-                        onClick={() => toggleExtra(e.id)}
-                        className={cn(
-                          "text-[11px] font-display uppercase tracking-wider px-2 py-1.5 border-2 border-ink transition-colors",
-                          selectedExtraIds.has(e.id)
-                            ? "bg-ink text-cream"
-                            : "bg-cream-deep hover:bg-ink hover:text-cream"
-                        )}
-                      >
-                        {e.name} +{e.price}₽
-                      </button>
-                    ))}
+                  <p className="font-display uppercase tracking-widest text-[10px] text-smoke mb-3">
+                    Добавить по вкусу
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {EXTRAS.map(e => {
+                      const active = selectedExtraIds.has(e.id);
+                      return (
+                        <button
+                          key={e.id}
+                          type="button"
+                          onClick={() => toggleExtra(e.id)}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-1 p-2 border-2 border-ink text-center transition-colors",
+                            active ? "bg-ink text-cream" : "bg-white hover:bg-cream-deep"
+                          )}
+                        >
+                          <span className={cn(
+                            "font-display uppercase text-[10px] sm:text-[11px] tracking-wide leading-tight",
+                            active ? "text-cream" : "text-ink"
+                          )}>
+                            {e.name}
+                          </span>
+                          <span className={cn(
+                            "font-display text-[13px] sm:text-[15px] leading-none mt-0.5",
+                            active ? "text-crimson" : "text-crimson"
+                          )}>
+                            +{e.price}₽
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
-
-              {/* Цена + кнопка */}
-              <div className="mt-auto pt-3 border-t-2 border-ink">
-                <div className="mb-3">
-                  <div className="font-display text-4xl leading-none">
-                    {formatRub(displayPrice)}
-                  </div>
-                  {extrasSum > 0 && (
-                    <div className="text-[11px] text-smoke mt-1">
-                      {formatRub(size.price)} + добавки {formatRub(extrasSum)}
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAdd}
-                  disabled={added}
-                  className={cn(
-                    "btn-primary w-full justify-center text-base transition-all",
-                    added && "!bg-ink opacity-80"
-                  )}
-                >
-                  {added ? "Добавлено ✓" : `В корзину — ${formatRub(displayPrice)}`}
-                </button>
-              </div>
             </div>
+
+            {/* ── Липкий футер: цена + кнопка ── */}
+            <div className="shrink-0 border-t-2 border-ink bg-cream p-4 sm:p-5">
+              {extrasSum > 0 && (
+                <p className="text-[11px] text-smoke mb-1.5">
+                  {formatRub(size.price)} + добавки {formatRub(extrasSum)}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={added}
+                className={cn(
+                  "w-full font-display uppercase tracking-wider text-base py-4 border-2 border-ink transition-all",
+                  added
+                    ? "bg-ink text-cream opacity-70"
+                    : "bg-crimson text-cream hover:bg-ink"
+                )}
+              >
+                {added ? "Добавлено ✓" : `В корзину — ${formatRub(displayPrice)}`}
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
