@@ -4,17 +4,17 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Plus, Sparkles } from "lucide-react";
 import { menu, categoryLabels, categoryOrder, type Category, type MenuItem } from "@/lib/menu";
-import { EXTRAS } from "@/lib/extras";
-import type { Extra } from "@/lib/extras";
 import { useCart } from "@/lib/cart-store";
 import { useAssistant } from "@/lib/assistant-store";
 import { cn, formatRub } from "@/lib/utils";
 import Reveal, { useReveal } from "@/components/reveal";
+import PizzaModal from "@/components/pizza-modal";
 
 export default function MenuSection() {
   const [active, setActive] = useState<Category>("pizza");
   const items = useMemo(() => menu.filter((i) => i.category === active), [active]);
   const openAssistant = useAssistant((s) => s.setOpen);
+  const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
 
   return (
     <section id="menu" className="relative border-b-2 border-ink">
@@ -93,49 +93,49 @@ export default function MenuSection() {
             </div>
           </div>
 
-          {/* Grid — flex с центровкой: все карточки одного размера,
-              неполный последний ряд встаёт по центру. Внешней рамки нет,
-              поэтому пустых блоков по бокам не возникает. */}
           <div className="flex flex-wrap justify-center">
             {items.map((item, i) => (
-              <PizzaCard key={`${active}-${item.id}`} item={item} index={i} />
+              <PizzaCard
+                key={`${active}-${item.id}`}
+                item={item}
+                index={i}
+                onOpenModal={setActiveItem}
+              />
             ))}
           </div>
         </div>
       </div>
+
+      <PizzaModal item={activeItem} onClose={() => setActiveItem(null)} />
     </section>
   );
 }
 
-function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
+function PizzaCard({
+  item,
+  index,
+  onOpenModal,
+}: {
+  item: MenuItem;
+  index: number;
+  onOpenModal: (item: MenuItem) => void;
+}) {
   const add = useCart((s) => s.add);
   const [sizeIdx, setSizeIdx] = useState(0);
   const [pop, setPop] = useState(false);
-  const [extrasOpen, setExtrasOpen] = useState(false);
-  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
   const { ref, visible } = useReveal<HTMLElement>();
   const size = item.sizes[sizeIdx];
 
-  const selectedExtras: Extra[] = EXTRAS.filter(e => selectedExtraIds.has(e.id));
-  const extrasSum = selectedExtras.reduce((s, e) => s + e.price, 0);
-  const displayPrice = size.price + extrasSum;
-
-  const toggleExtra = (id: string) => {
-    setSelectedExtraIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    // Останавливаем всплытие чтобы клик на «+» не открывал модал
+    e.stopPropagation();
     add({
       itemId: item.id,
       name: item.name,
       sizeLabel: size.label,
       price: size.price,
       image: item.image,
-      extras: selectedExtras,
+      extras: [],
     });
     setPop(true);
     setTimeout(() => setPop(false), 400);
@@ -152,9 +152,13 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
     >
       {item.badge && <BadgeStamp label={item.badge} />}
 
+      {/* Фото — кликабельно, открывает модал */}
       <div
-        className="relative aspect-square overflow-hidden bg-white"
+        className="relative aspect-square overflow-hidden bg-white cursor-pointer"
         style={{ ["--imgScale" as string]: item.imgScale ?? 1.4 }}
+        onClick={() => onOpenModal(item)}
+        role="button"
+        aria-label={`Подробнее о ${item.name}`}
       >
         <Image
           src={item.image}
@@ -167,7 +171,11 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
       </div>
 
       <div className="p-4 sm:p-5 flex flex-col flex-1">
-        <h3 className="font-display text-2xl sm:text-[28px] leading-tight uppercase">
+        {/* Название — кликабельно, открывает модал */}
+        <h3
+          className="font-display text-2xl sm:text-[28px] leading-tight uppercase cursor-pointer hover:text-crimson transition-colors"
+          onClick={() => onOpenModal(item)}
+        >
           {item.name}
         </h3>
         <p className="quote text-[14px] text-ink/75 mt-2 leading-snug line-clamp-2">
@@ -180,7 +188,7 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
             {item.sizes.map((s, i) => (
               <button
                 key={s.label}
-                onClick={() => setSizeIdx(i)}
+                onClick={(e) => { e.stopPropagation(); setSizeIdx(i); }}
                 className={cn(
                   "text-[12px] font-display uppercase tracking-wider px-2.5 py-1.5 min-h-[36px] border-2 border-ink transition-colors",
                   i === sizeIdx
@@ -194,46 +202,13 @@ function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
           </div>
         )}
 
-        {/* Extras */}
-        {item.category === "pizza" && (
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setExtrasOpen(!extrasOpen)}
-              className="flex items-center gap-1.5 text-[12px] font-display uppercase tracking-wider text-crimson hover:text-ink transition-colors"
-            >
-              <Plus className={cn("w-3 h-3 transition-transform duration-200", extrasOpen && "rotate-45")} />
-              {extrasOpen ? "Скрыть добавки" : "Добавить ингредиент"}
-            </button>
-            {extrasOpen && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {EXTRAS.map(e => (
-                  <button
-                    key={e.id}
-                    type="button"
-                    onClick={() => toggleExtra(e.id)}
-                    className={cn(
-                      "text-[11px] font-display uppercase tracking-wider px-2 py-1.5 border-2 border-ink transition-colors",
-                      selectedExtraIds.has(e.id)
-                        ? "bg-ink text-cream"
-                        : "bg-cream hover:bg-cream-deep"
-                    )}
-                  >
-                    {e.name} +{e.price}₽
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         <div className="flex items-end justify-between gap-3 mt-auto pt-4">
           <div>
             <div className="text-[11px] font-display uppercase tracking-widest text-smoke leading-none">
               {item.sizes.length > 1 ? "Цена" : size.label}
             </div>
             <div className="font-display text-[28px] leading-none mt-1">
-              {formatRub(displayPrice)}
+              {formatRub(size.price)}
             </div>
           </div>
 
