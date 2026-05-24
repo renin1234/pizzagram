@@ -7,6 +7,7 @@ import Reviews from "@/components/reviews";
 import Footer from "@/components/footer";
 import CartDrawer from "@/components/cart-drawer";
 import StickyCta from "@/components/sticky-cta";
+import Reveal from "@/components/reveal";
 
 export default function Page() {
   return (
@@ -14,10 +15,10 @@ export default function Page() {
       <Header />
       <Hero />
       <MenuSection />
-      <Delivery />
-      <About />
-      <Reviews />
-      <Footer />
+      <Reveal><Delivery /></Reveal>
+      <Reveal><About /></Reveal>
+      <Reveal><Reviews /></Reveal>
+      <Reveal><Footer /></Reveal>
       <CartDrawer />
       <StickyCta />
     </main>

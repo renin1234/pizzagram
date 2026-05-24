@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Phone, MapPin } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { cn } from "@/lib/utils";
+import { cn, formatRub } from "@/lib/utils";
 
 const NAV = [
   { href: "#menu", label: "Меню" },
@@ -18,6 +18,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [shake, setShake] = useState(false);
   const count = useCart((s) => s.totalCount());
+  const total = useCart((s) => s.totalPrice());
   const pulse = useCart((s) => s.pulse);
   const openDrawer = useCart((s) => s.openDrawer);
 
@@ -105,6 +106,12 @@ export default function Header() {
             >
               {count}
             </span>
+            {/* Живая сумма корзины — обновляется реактивно вместе со счётчиком */}
+            {count > 0 && (
+              <span className="hidden sm:inline text-[13px] tabular-nums">
+                {formatRub(total)}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -120,7 +127,7 @@ function Marquee() {
     <span key={i} className="inline-flex items-center gap-6 font-display uppercase tracking-wider text-[15px] py-2.5 px-6 whitespace-nowrap">
       <span>Пицца от 250 ₽</span>
       <Star />
-      <span>Доставка 60 минут</span>
+      <span>Быстрая доставка</span>
       <Star />
       <span>Тесто на закваске</span>
       <Star />

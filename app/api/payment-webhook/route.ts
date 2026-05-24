@@ -1,61 +1,66 @@
-import { buildWebhookAck, getConfig, verifyWebhook, type WebhookPayload } from "@/lib/paykeeper";
+import { fetchPayment, getConfig } from "@/lib/yookassa";
 import { buildOrderMessage, sendToTelegram, type OrderForMessage } from "@/lib/telegram";
 import { promises as fs } from "fs";
 import path from "path";
 
 /**
- * URL, который надо указать в кабинете PayKeeper в разделе
- * «Получение информации о платежах» → «Уведомления».
- * Метод: POST, формат: x-www-form-urlencoded.
- * Ожидаемый ответ: OK<md5(id + secret)>.
+ * URL, который надо указать в ЛК ЮКассы → HTTP-уведомления:
+ *   https://<ваш_домен>/api/payment-webhook
+ *
+ * ЮКасса шлёт JSON (POST). Верификация: не доверяем телу вебхука —
+ * перезапрашиваем платёж напрямую у ЮКассы по paymentId.
+ * Ожидаемый ответ: 200 OK (тело не важно).
  */
 export async function POST(req: Request) {
   const cfg = getConfig();
-  if (!cfg) {
-    return new Response("PayKeeper не настроен", { status: 500 });
-  }
+  if (!cfg) return new Response("YooKassa не настроена", { status: 500 });
 
-  const body = await req.text();
-  const params = new URLSearchParams(body);
-  const payload: WebhookPayload = {
-    id: params.get("id") || "",
-    sum: params.get("sum") || "",
-    clientid: params.get("clientid") || "",
-    orderid: params.get("orderid") || "",
-    key: params.get("key") || "",
-  };
-
-  if (!verifyWebhook(cfg, payload)) {
-    console.warn("PayKeeper webhook: подпись не сошлась", payload);
-    return new Response("BAD SIGNATURE", { status: 400 });
-  }
-
-  // Подтягиваем заказ из .pending-orders/<orderId>.json.
-  let order: OrderForMessage | null = null;
+  let body: { event?: string; object?: { id?: string } };
   try {
-    const file = path.join(process.cwd(), ".pending-orders", `${payload.orderid}.json`);
-    const raw = await fs.readFile(file, "utf8");
-    order = JSON.parse(raw) as OrderForMessage;
-    // Не падаем, если не получится удалить — это не критично.
-    await fs.unlink(file).catch(() => {});
+    body = await req.json();
+  } catch {
+    return new Response("Bad JSON", { status: 400 });
+  }
+
+  if (body.event !== "payment.succeeded") {
+    return new Response("OK", { status: 200 });
+  }
+
+  const paymentId = body.object?.id;
+  if (!paymentId) return new Response("No payment id", { status: 400 });
+
+  let payment: Awaited<ReturnType<typeof fetchPayment>>;
+  try {
+    payment = await fetchPayment(cfg, paymentId);
   } catch (err) {
-    console.error("Pending order не найден:", payload.orderid, err);
+    console.error("YooKassa fetchPayment failed:", err);
+    return new Response("RETRY", { status: 500 });
+  }
+
+  if (payment.status !== "succeeded") return new Response("OK", { status: 200 });
+
+  const orderId = payment.metadata?.orderId;
+  let order: OrderForMessage | null = null;
+  if (orderId) {
+    try {
+      const file = path.join(process.cwd(), ".pending-orders", `${orderId}.json`);
+      order = JSON.parse(await fs.readFile(file, "utf8")) as OrderForMessage;
+      await fs.unlink(file).catch(() => {});
+    } catch (err) {
+      console.error("Pending order не найден:", orderId, err);
+    }
   }
 
   const message = order
     ? buildOrderMessage({ ...order, paid: true })
-    : `✅ *Оплачен заказ* ${payload.orderid}\nСумма: ${payload.sum} ₽\nКлиент: ${payload.clientid}\n(детали заказа не найдены на сервере)`;
+    : `✅ *Оплачен заказ* ${orderId ?? paymentId}\n(детали заказа не найдены на сервере)`;
 
   try {
     await sendToTelegram(message);
   } catch (err) {
-    // PayKeeper повторит уведомление, если мы не ответим ему OK.
-    console.error("Telegram send failed in webhook:", err);
+    console.error("Telegram send failed:", err);
     return new Response("RETRY", { status: 500 });
   }
 
-  return new Response(buildWebhookAck(cfg, payload.id), {
-    status: 200,
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+  return new Response("OK", { status: 200 });
 }

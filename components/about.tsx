@@ -8,7 +8,7 @@ export default function About() {
           {/* Headline col */}
           <div className="col-span-12 lg:col-span-5">
             <div className="eyebrow text-crimson">04 — О нас</div>
-            <h2 className="display text-[clamp(40px,5.2vw,76px)] mt-3 leading-[0.95]">
+            <h2 className="display text-[clamp(36px,4.2vw,62px)] mt-3 leading-[0.95]">
               Локальная.<br />
               Краснодарская.<br />
               <span className="quote font-normal italic text-ink/80">Своя.</span>

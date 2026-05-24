@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createInvoice, getConfig } from "@/lib/paykeeper";
+import { createPayment, getConfig, type ReceiptItem } from "@/lib/yookassa";
 import { buildOrderMessage, sendToTelegram, type OrderForMessage } from "@/lib/telegram";
 import { promises as fs } from "fs";
 import path from "path";
 
 /**
- * Создаёт счёт в PayKeeper и возвращает ссылку, на которую надо отправить клиента.
- * Параллельно сохраняет «черновик» заказа в .pending-orders/<orderId>.json,
- * чтобы webhook после оплаты мог достать состав заказа и отправить в Telegram.
+ * Создаёт платёж в ЮКассе и возвращает ссылку для редиректа клиента.
+ * Сохраняет черновик заказа в .pending-orders/<orderId>.json —
+ * webhook после оплаты достаёт его и шлёт уведомление в Telegram.
  */
 export async function POST(req: Request) {
   let payload: OrderForMessage;
   try {
-    payload = (await req.json()) as OrderForMessage;
+    payload = await req.json();
   } catch {
     return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
   }
@@ -26,57 +26,93 @@ export async function POST(req: Request) {
   }
 
   const cfg = getConfig();
-
-  // Генерим короткий orderId, который PayKeeper вернёт в webhook.
   const orderId = `PG-${Date.now().toString(36)}-${crypto.randomBytes(2).toString("hex")}`.toUpperCase();
   const enrichedPayload: OrderForMessage = { ...payload, orderId };
 
   if (!cfg) {
-    // Dev-режим: PayKeeper не настроен. Шлём предварительное сообщение в Telegram
-    // и отдаём фронту флаг simulated, чтобы он показал заглушку.
     const message = buildOrderMessage({
       ...enrichedPayload,
       paid: false,
-      comment: (enrichedPayload.comment ? enrichedPayload.comment + "\n" : "") +
-        "⚠️ PayKeeper не настроен — оплата не выполнена, заказ только зарегистрирован.",
+      comment:
+        (enrichedPayload.comment ? enrichedPayload.comment + "\n" : "") +
+        "⚠️ YooKassa не настроена — оплата не выполнена, заказ только зарегистрирован.",
     });
-    await sendToTelegram(message).catch((e) => console.error(e));
-    return NextResponse.json(
-      {
-        ok: true,
-        simulated: true,
-        orderId,
-        warning:
-          "PAYKEEPER_* переменные не заданы — счёт не создан. Заполните .env.local. См. .env.example.",
-      },
-      { status: 200 },
-    );
+    await sendToTelegram(message).catch(console.error);
+    return NextResponse.json({
+      ok: true,
+      simulated: true,
+      orderId,
+      warning: "YOOKASSA_SHOP_ID / YOOKASSA_SECRET_KEY не заданы.",
+    });
   }
 
   try {
     await savePendingOrder(orderId, enrichedPayload);
 
-    const invoice = await createInvoice(cfg, {
-      sum: enrichedPayload.total,
-      clientName: enrichedPayload.name,
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+
+    const payment = await createPayment(cfg, {
+      amountRub: enrichedPayload.total,
       orderId,
-      serviceName: `Заказ Pizzagram ${orderId}`,
-      clientPhone: enrichedPayload.phone,
+      description: `Заказ Pizzagram ${orderId}`,
+      returnUrl: `${siteUrl}/`,
+      customerPhone: toE164(enrichedPayload.phone),
+      receiptItems: buildReceiptItems(enrichedPayload),
     });
 
-    return NextResponse.json({
-      ok: true,
-      orderId,
-      invoiceId: invoice.invoiceId,
-      paymentUrl: invoice.paymentUrl,
-    });
+    return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
   } catch (err) {
-    console.error("PayKeeper invoice failed:", err);
+    console.error("YooKassa payment failed:", err);
     return NextResponse.json(
-      { error: "Не удалось создать счёт оплаты. Попробуйте ещё раз или выберите оплату при получении." },
+      { error: "Не удалось создать платёж. Попробуйте ещё раз или выберите оплату при получении." },
       { status: 502 },
     );
   }
+}
+
+function toE164(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  const norm = digits.length === 11 && digits[0] === "8" ? "7" + digits.slice(1) : digits;
+  return "+" + norm;
+}
+
+/**
+ * Масштабирует позиции чека так, чтобы их сумма точно совпала с payload.total.
+ * Обязательно при скидке самовывоза: ЮКасса требует items.sum === amount.
+ * Код НДС 1 = «Без НДС» (для УСН).
+ */
+function buildReceiptItems(payload: OrderForMessage): ReceiptItem[] {
+  const raw = [
+    ...payload.lines.map((l) => ({
+      description: `${l.name} (${l.sizeLabel})`,
+      rawTotal: l.price * l.qty,
+      subject: "commodity" as const,
+    })),
+    ...(payload.deliveryPrice && payload.deliveryPrice > 0
+      ? [{ description: "Доставка", rawTotal: payload.deliveryPrice, subject: "service" as const }]
+      : []),
+  ];
+
+  const gross = raw.reduce((s, i) => s + i.rawTotal, 0);
+  const target = payload.total;
+
+  let allocated = 0;
+  return raw.map((item, idx) => {
+    const isLast = idx === raw.length - 1;
+    const scaled = isLast
+      ? Math.round((target - allocated) * 100) / 100
+      : Math.round((item.rawTotal / gross) * target * 100) / 100;
+    if (!isLast) allocated += scaled;
+
+    return {
+      description: item.description,
+      quantity: "1.00",
+      amount: { value: scaled.toFixed(2), currency: "RUB" },
+      vat_code: 1,
+      payment_subject: item.subject,
+      payment_mode: "full_payment",
+    };
+  });
 }
 
 async function savePendingOrder(orderId: string, payload: OrderForMessage): Promise<void> {

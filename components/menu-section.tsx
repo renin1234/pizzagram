@@ -2,19 +2,25 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { menu, categoryLabels, categoryOrder, type Category, type MenuItem } from "@/lib/menu";
+import { EXTRAS } from "@/lib/extras";
+import type { Extra } from "@/lib/extras";
 import { useCart } from "@/lib/cart-store";
+import { useAssistant } from "@/lib/assistant-store";
 import { cn, formatRub } from "@/lib/utils";
+import Reveal, { useReveal } from "@/components/reveal";
 
 export default function MenuSection() {
   const [active, setActive] = useState<Category>("pizza");
   const items = useMemo(() => menu.filter((i) => i.category === active), [active]);
+  const openAssistant = useAssistant((s) => s.setOpen);
 
   return (
     <section id="menu" className="relative border-b-2 border-ink">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 py-16 lg:py-24">
         {/* Section head */}
+        <Reveal>
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 lg:mb-14">
           <div>
             <div className="eyebrow text-crimson">02 — Меню</div>
@@ -40,6 +46,28 @@ export default function MenuSection() {
             </div>
           </div>
         </div>
+        </Reveal>
+
+        {/* Строка-вход в ИИ-помощника */}
+        <Reveal className="mb-10 lg:mb-12">
+          <button
+            onClick={() => openAssistant(true)}
+            className="group w-full flex items-center gap-4 border-2 border-ink bg-ink text-cream px-4 sm:px-6 py-4 sm:py-5 text-left shadow-[6px_6px_0_var(--crimson)] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_var(--crimson)]"
+          >
+            <Sparkles className="w-7 h-7 shrink-0 text-crimson" />
+            <div className="flex-1 min-w-0">
+              <div className="font-display uppercase tracking-wide text-base sm:text-lg leading-tight">
+                Не знаете, что выбрать?
+              </div>
+              <div className="quote text-cream/70 text-[13px] sm:text-sm mt-0.5">
+                ИИ-помощник подберёт пиццу под ваш вкус
+              </div>
+            </div>
+            <span className="shrink-0 font-display uppercase text-[12px] sm:text-[13px] tracking-widest bg-crimson text-cream px-3 sm:px-4 py-2 sm:py-2.5 group-hover:bg-cream group-hover:text-ink transition-colors">
+              Спросить →
+            </span>
+          </button>
+        </Reveal>
 
         {/* Tabs */}
         <div className="relative">
@@ -69,8 +97,8 @@ export default function MenuSection() {
               неполный последний ряд встаёт по центру. Внешней рамки нет,
               поэтому пустых блоков по бокам не возникает. */}
           <div className="flex flex-wrap justify-center">
-            {items.map((item) => (
-              <PizzaCard key={item.id} item={item} />
+            {items.map((item, i) => (
+              <PizzaCard key={`${active}-${item.id}`} item={item} index={i} />
             ))}
           </div>
         </div>
@@ -79,11 +107,26 @@ export default function MenuSection() {
   );
 }
 
-function PizzaCard({ item }: { item: MenuItem }) {
+function PizzaCard({ item, index }: { item: MenuItem; index: number }) {
   const add = useCart((s) => s.add);
   const [sizeIdx, setSizeIdx] = useState(0);
   const [pop, setPop] = useState(false);
+  const [extrasOpen, setExtrasOpen] = useState(false);
+  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
+  const { ref, visible } = useReveal<HTMLElement>();
   const size = item.sizes[sizeIdx];
+
+  const selectedExtras: Extra[] = EXTRAS.filter(e => selectedExtraIds.has(e.id));
+  const extrasSum = selectedExtras.reduce((s, e) => s + e.price, 0);
+  const displayPrice = size.price + extrasSum;
+
+  const toggleExtra = (id: string) => {
+    setSelectedExtraIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   const handleAdd = () => {
     add({
@@ -92,13 +135,21 @@ function PizzaCard({ item }: { item: MenuItem }) {
       sizeLabel: size.label,
       price: size.price,
       image: item.image,
+      extras: selectedExtras,
     });
     setPop(true);
     setTimeout(() => setPop(false), 400);
   };
 
   return (
-    <article className="group relative bg-cream flex flex-col border border-ink w-1/2 lg:w-1/3 xl:w-1/4">
+    <article
+      ref={ref}
+      style={{ transitionDelay: `${Math.min(index * 30, 240)}ms` }}
+      className={cn(
+        "group relative bg-cream flex flex-col border border-ink w-1/2 lg:w-1/3 xl:w-1/4 reveal",
+        visible && "reveal-visible"
+      )}
+    >
       {item.badge && <BadgeStamp label={item.badge} />}
 
       <div
@@ -131,7 +182,7 @@ function PizzaCard({ item }: { item: MenuItem }) {
                 key={s.label}
                 onClick={() => setSizeIdx(i)}
                 className={cn(
-                  "text-[12px] font-display uppercase tracking-wider px-2.5 py-1 border-2 border-ink transition-colors",
+                  "text-[12px] font-display uppercase tracking-wider px-2.5 py-1.5 min-h-[36px] border-2 border-ink transition-colors",
                   i === sizeIdx
                     ? "bg-ink text-cream"
                     : "bg-cream hover:bg-cream-deep"
@@ -143,13 +194,46 @@ function PizzaCard({ item }: { item: MenuItem }) {
           </div>
         )}
 
+        {/* Extras */}
+        {item.category === "pizza" && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setExtrasOpen(!extrasOpen)}
+              className="flex items-center gap-1.5 text-[12px] font-display uppercase tracking-wider text-crimson hover:text-ink transition-colors"
+            >
+              <Plus className={cn("w-3 h-3 transition-transform duration-200", extrasOpen && "rotate-45")} />
+              {extrasOpen ? "Скрыть добавки" : "Добавить ингредиент"}
+            </button>
+            {extrasOpen && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {EXTRAS.map(e => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => toggleExtra(e.id)}
+                    className={cn(
+                      "text-[11px] font-display uppercase tracking-wider px-2 py-1.5 border-2 border-ink transition-colors",
+                      selectedExtraIds.has(e.id)
+                        ? "bg-ink text-cream"
+                        : "bg-cream hover:bg-cream-deep"
+                    )}
+                  >
+                    {e.name} +{e.price}₽
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex items-end justify-between gap-3 mt-auto pt-4">
           <div>
             <div className="text-[11px] font-display uppercase tracking-widest text-smoke leading-none">
               {item.sizes.length > 1 ? "Цена" : size.label}
             </div>
             <div className="font-display text-[28px] leading-none mt-1">
-              {formatRub(size.price)}
+              {formatRub(displayPrice)}
             </div>
           </div>
 

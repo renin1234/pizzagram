@@ -34,7 +34,7 @@ export default function CookieBanner() {
       <div className="relative bg-cream border-2 border-ink p-5 shadow-[8px_8px_0_var(--ink)]">
         <button
           onClick={() => accept("necessary")}
-          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center hover:bg-ink hover:text-cream transition-colors"
+          className="absolute top-1.5 right-1.5 w-10 h-10 flex items-center justify-center hover:bg-ink hover:text-cream transition-colors"
           aria-label="Закрыть"
         >
           <X className="w-4 h-4" />

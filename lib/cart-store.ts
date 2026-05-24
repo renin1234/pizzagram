@@ -2,15 +2,17 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Extra } from "./extras";
 
 export type CartLine = {
-  id: string;            // composite id, e.g. "pizza-margherita::32 см"
+  id: string;            // composite id, e.g. "pizza-margherita::32 см" or "...::бекон,курица"
   itemId: string;        // menu item id
   name: string;
   sizeLabel: string;
-  price: number;
+  price: number;         // базовая цена пиццы без добавок
   qty: number;
   image: string;
+  extras: Extra[];       // выбранные добавки (пустой массив если нет)
 };
 
 type State = {
@@ -20,7 +22,7 @@ type State = {
 };
 
 type Actions = {
-  add: (input: Omit<CartLine, "qty" | "id"> & { qty?: number }) => void;
+  add: (input: Omit<CartLine, "qty" | "id" | "extras"> & { qty?: number; extras?: Extra[] }) => void;
   remove: (id: string) => void;
   setQty: (id: string, qty: number) => void;
   clear: () => void;
@@ -38,20 +40,25 @@ export const useCart = create<State & Actions>()(
       drawerOpen: false,
       pulse: 0,
 
-      add: ({ itemId, name, sizeLabel, price, image, qty = 1 }) => {
-        const lineId = `${itemId}::${sizeLabel}`;
-        const lines = get().lines.slice();
-        const existing = lines.find((l) => l.id === lineId);
-        if (existing) {
-          existing.qty += qty;
-        } else {
-          lines.push({ id: lineId, itemId, name, sizeLabel, price, image, qty });
-        }
+      add: ({ itemId, name, sizeLabel, price, image, qty = 1, extras = [] }) => {
+        const extrasKey = extras.length > 0
+          ? "::" + [...extras].sort((a, b) => a.id.localeCompare(b.id)).map(e => e.id).join(",")
+          : "";
+        const lineId = `${itemId}::${sizeLabel}${extrasKey}`;
+        const prev = get().lines;
+        const exists = prev.some((l) => l.id === lineId);
+        const lines = exists
+          ? prev.map((l) => l.id === lineId ? { ...l, qty: l.qty + qty } : l)
+          : [...prev, { id: lineId, itemId, name, sizeLabel, price, image, qty, extras }];
         set({ lines, pulse: get().pulse + 1 });
       },
 
       remove: (id) =>
-        set({ lines: get().lines.filter((l) => l.id !== id) }),
+        // pulse++ — чтобы иконка корзины в шапке «дёргалась» и при удалении тоже.
+        set({
+          lines: get().lines.filter((l) => l.id !== id),
+          pulse: get().pulse + 1,
+        }),
 
       setQty: (id, qty) => {
         if (qty <= 0) {
@@ -69,7 +76,10 @@ export const useCart = create<State & Actions>()(
       toggleDrawer: () => set({ drawerOpen: !get().drawerOpen }),
 
       totalCount: () => get().lines.reduce((s, l) => s + l.qty, 0),
-      totalPrice: () => get().lines.reduce((s, l) => s + l.price * l.qty, 0),
+      totalPrice: () => get().lines.reduce((s, l) => {
+        const extrasTotal = (l.extras ?? []).reduce((acc, e) => acc + e.price, 0);
+        return s + (l.price + extrasTotal) * l.qty;
+      }, 0),
     }),
     {
       name: "pizzagram-cart-v1",

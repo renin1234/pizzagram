@@ -12,7 +12,7 @@ export default function Delivery() {
             <div className="eyebrow text-crimson">03 — Доставка и самовывоз</div>
             <h2 className="display text-[clamp(44px,7vw,96px)] mt-3">
               Привезём <br />
-              <span className="text-crimson">за 60 минут</span>
+              <span className="text-crimson">быстро</span>
               <br />
               <span className="quote font-normal italic text-ink/80">или</span> заберите сами.
             </h2>
@@ -20,53 +20,65 @@ export default function Delivery() {
               По Краснодару — горячая, не остывшая. Никаких подводных камней.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="tel:+79298358881" className="btn-primary">
-                <Phone className="w-4 h-4" />
-                +7 929 835-88-81
-              </a>
-              <SocialBtn href="https://wa.me/79298358881" icon="/icon-whatsapp.png" label="WhatsApp" />
-              <SocialBtn href="https://t.me/+79298358881" icon="/icon-telegram.png" label="Telegram" />
-              <SocialBtn href="https://t.me/pizzagram_krd" icon="/icon-telegram.png" label="Канал" title="Подписаться на наш Telegram-канал" />
-              <SocialBtn href="https://max.ru/c/-72923036747134/AZ3kGTqwKDY" icon="/icon-max.png" label="MAX" />
-              <SocialBtn href="https://www.instagram.com/pizzagram_krd" icon="/icon-instagram.png" label="Instagram" />
-            </div>
           </div>
 
-          {/* RIGHT — two stacked tiles */}
+          {/* RIGHT — 2×2: compact cards + contact groups */}
           <div className="col-span-12 lg:col-span-7 grid sm:grid-cols-2 gap-4">
-            {/* Delivery card */}
-            <div className="bg-cream border-2 border-ink p-6 shadow-[8px_8px_0_var(--ink)] relative">
+            {/* Delivery card — compact */}
+            <div className="bg-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--ink)] relative">
               <div className="absolute -top-3 -right-3 bg-crimson border-2 border-ink text-cream font-display uppercase text-xs tracking-widest px-3 py-1">
                 Доставка
               </div>
-              <Bike className="w-10 h-10 mb-4" strokeWidth={1.5} />
-              <h3 className="font-display text-3xl uppercase leading-tight">
+              <Bike className="w-7 h-7 mb-3" strokeWidth={1.5} />
+              <h3 className="font-display text-2xl uppercase leading-tight">
                 По всему <br /> городу
               </h3>
-              <ul className="mt-5 space-y-3 text-[15px]">
+              <ul className="mt-4 space-y-2 text-[13px]">
                 <Row k="Среднее время" v="55–70 минут" />
                 <Row k="Стоимость" v="по зоне — расчёт ниже" />
-                <Row k="Зона" v="Краснодар, ЖК Светлоград и рядом" />
+                <Row k="Зона" v="Краснодар, ЖК Светлоград" />
                 <Row k="Часы" v="11:00 — 22:00 каждый день" />
               </ul>
             </div>
 
-            {/* Pickup card */}
-            <div className="bg-ink text-cream border-2 border-ink p-6 shadow-[8px_8px_0_var(--crimson)] relative">
+            {/* Pickup card — compact */}
+            <div className="bg-ink text-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--crimson)] relative">
               <div className="absolute -top-3 -right-3 bg-cream border-2 border-ink text-ink font-display uppercase text-xs tracking-widest px-3 py-1">
                 Самовывоз
               </div>
-              <ShoppingBag className="w-10 h-10 mb-4 text-crimson" strokeWidth={1.5} />
-              <h3 className="font-display text-3xl uppercase leading-tight">
+              <ShoppingBag className="w-7 h-7 mb-3 text-crimson" strokeWidth={1.5} />
+              <h3 className="font-display text-2xl uppercase leading-tight">
                 Заберите <br /> сами
               </h3>
-              <ul className="mt-5 space-y-3 text-[15px]">
+              <ul className="mt-4 space-y-2 text-[13px]">
                 <Row k="Адрес" v="Красных Партизан, 1/4 к.8" dark />
                 <Row k="Готовность" v="20 минут после оплаты" dark />
                 <Row k="Парковка" v="Двор ЖК Светлоград" dark />
                 <Row k="Часы" v="11:00 — 22:00" dark />
               </ul>
+            </div>
+
+            {/* Связаться с нами */}
+            <div className="bg-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--ink)]">
+              <div className="eyebrow text-crimson text-[11px] mb-3">Связаться с нами</div>
+              <div className="flex flex-col gap-2">
+                <a href="tel:+79298358881" className="btn-primary !py-2.5 !text-sm">
+                  <Phone className="w-4 h-4" />
+                  +7 929 835-88-81
+                </a>
+                <SocialBtn href="https://wa.me/79298358881" icon="/icon-whatsapp.png" label="WhatsApp" />
+                <SocialBtn href="https://t.me/+79298358881" icon="/icon-telegram.png" label="Telegram" />
+                <SocialBtn href="https://max.ru/c/-72923036747134/AZ3kGTqwKDY" icon="/icon-max.png" label="MAX" />
+              </div>
+            </div>
+
+            {/* Наши соцсети */}
+            <div className="bg-ink text-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--crimson)]">
+              <div className="eyebrow text-crimson text-[11px] mb-3">Наши соцсети</div>
+              <div className="flex flex-col gap-2">
+                <SocialBtn href="https://t.me/pizzagram_krd" icon="/icon-telegram.png" label="Канал" title="Подписаться на Telegram-канал" />
+                <SocialBtn href="https://www.instagram.com/pizzagram_krd" icon="/icon-instagram.png" label="Instagram" />
+              </div>
             </div>
           </div>
         </div>

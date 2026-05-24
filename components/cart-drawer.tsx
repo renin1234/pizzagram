@@ -45,22 +45,23 @@ export default function CartDrawer() {
     };
   }, [open]);
 
-  // Переключение способа получения. Самовывоз сбрасывает выбранный адрес
-  // и оплату картой курьеру (она доступна только для доставки).
   const selectMethod = (m: Method) => {
     setMethod(m);
     if (m === "pickup") {
       setDelivery(null);
-      setPayment((p) => (p === "card_courier" ? "online" : p));
+    }
+    if (m === "delivery") {
+      setPayment("online");
     }
   };
 
-  const discount = 0;
+  const PICKUP_DISCOUNT_RATE = 0.15;
+  const discount = method === "pickup" ? Math.round(total * PICKUP_DISCOUNT_RATE) : 0;
   const deliveryZone = method === "delivery" ? delivery?.zone ?? null : null;
   const deliveryPrice = method === "delivery" ? deliveryCost(deliveryZone, total) : 0;
   const minOrder = deliveryZone ? deliveryZone.minOrder : 0;
   const belowMin = method === "delivery" && minOrder > 0 && total < minOrder;
-  const grand = total + deliveryPrice;
+  const grand = total + deliveryPrice - discount;
 
   const addressMissing = method === "delivery" && (!delivery || !delivery.deliverable);
   const blocked = submitting || belowMin || addressMissing;
@@ -109,7 +110,8 @@ export default function CartDrawer() {
         name: l.name,
         sizeLabel: l.sizeLabel,
         qty: l.qty,
-        price: l.price,
+        price: l.price + (l.extras ?? []).reduce((s, e) => s + e.price, 0),
+        extras: (l.extras ?? []).length > 0 ? l.extras : undefined,
       })),
       subtotal: total,
       deliveryPrice,
@@ -182,7 +184,7 @@ export default function CartDrawer() {
             {stage !== "cart" && stage !== "success" && (
               <button
                 onClick={() => setStage("cart")}
-                className="w-9 h-9 border-2 border-ink bg-cream flex items-center justify-center hover:bg-ink hover:text-cream transition-colors"
+                className="w-10 h-10 border-2 border-ink bg-cream flex items-center justify-center hover:bg-ink hover:text-cream transition-colors"
                 aria-label="Назад"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -196,7 +198,7 @@ export default function CartDrawer() {
           </div>
           <button
             onClick={close}
-            className="w-9 h-9 border-2 border-ink bg-cream flex items-center justify-center hover:bg-crimson hover:text-cream transition-colors"
+            className="w-10 h-10 border-2 border-ink bg-cream flex items-center justify-center hover:bg-crimson hover:text-cream transition-colors"
             aria-label="Закрыть"
           >
             <X className="w-4 h-4" />
@@ -243,6 +245,12 @@ export default function CartDrawer() {
                 >
                   {deliveryLineText()}
                 </span>
+              </div>
+            )}
+            {discount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-display uppercase tracking-widest text-smoke">Скидка самовывоз −15%</span>
+                <span className="font-medium text-crimson">−{formatRub(discount)}</span>
               </div>
             )}
             <div className="flex items-center justify-between">
@@ -316,10 +324,15 @@ function CartList({
               <div>
                 <div className="font-display uppercase text-[17px] leading-tight">{l.name}</div>
                 <div className="text-[12px] text-smoke mt-0.5">{l.sizeLabel}</div>
+                {(l.extras ?? []).length > 0 && (
+                  <div className="text-[11px] text-smoke/80 mt-0.5 leading-snug">
+                    + {(l.extras ?? []).map(e => e.name).join(", ")}
+                  </div>
+                )}
               </div>
               <button
                 onClick={() => remove(l.id)}
-                className="text-smoke hover:text-crimson"
+                className="w-10 h-10 flex items-center justify-center -mr-2 text-smoke hover:text-crimson transition-colors"
                 aria-label="Удалить"
               >
                 <X className="w-4 h-4" />
@@ -329,21 +342,23 @@ function CartList({
               <div className="inline-flex items-center border-2 border-ink">
                 <button
                   onClick={() => setQty(l.id, l.qty - 1)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
                   aria-label="Меньше"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="w-8 text-center font-medium">{l.qty}</span>
+                <span className="w-10 sm:w-8 text-center font-medium">{l.qty}</span>
                 <button
                   onClick={() => setQty(l.id, l.qty + 1)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
+                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
                   aria-label="Больше"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="font-display text-xl">{formatRub(l.price * l.qty)}</div>
+              <div className="font-display text-xl">
+                {formatRub((l.price + (l.extras ?? []).reduce((s, e) => s + e.price, 0)) * l.qty)}
+              </div>
             </div>
           </div>
         </li>
@@ -405,7 +420,7 @@ function CheckoutForm(props: {
                 {m === "delivery" ? "Доставка" : "Самовывоз"}
               </div>
               <div className={cn("text-[12px] mt-1", props.method === m ? "text-cream/70" : "text-smoke")}>
-                {m === "delivery" ? "60 минут по городу" : "Готово через 20 минут"}
+                {m === "delivery" ? "Быстрая доставка по городу" : "Готово через 20 минут"}
               </div>
             </button>
           ))}
@@ -442,41 +457,40 @@ function CheckoutForm(props: {
       <Field label="Оплата">
         <div className="grid grid-cols-1 gap-2">
           {(
-            [
-              {
-                id: "online" as Payment,
-                title: "Онлайн — картой или СБП",
-                desc: "Откроется защищённая страница PayKeeper. Деньги сразу зачислятся, оператор начнёт готовить заказ.",
-              },
-              {
-                id: "card_courier" as Payment,
-                title: "Картой курьеру",
-                desc: "Терминал у курьера. Только для доставки.",
-                disabled: props.method !== "delivery",
-              },
-              {
-                id: "cash" as Payment,
-                title: "Наличными",
-                desc: props.method === "delivery" ? "При получении у курьера." : "При получении в пиццерии.",
-              },
-            ] as { id: Payment; title: string; desc: string; disabled?: boolean }[]
+            props.method === "delivery"
+              ? [
+                  {
+                    id: "online" as Payment,
+                    title: "Онлайн — картой или СБП",
+                    desc: "Откроется защищённая страница ЮКассы. Деньги сразу зачислятся, оператор начнёт готовить заказ.",
+                  },
+                ]
+              : [
+                  {
+                    id: "online" as Payment,
+                    title: "Онлайн — картой или СБП",
+                    desc: "Откроется защищённая страница ЮКассы. Деньги сразу зачислятся.",
+                  },
+                  {
+                    id: "cash" as Payment,
+                    title: "Наличными",
+                    desc: "При получении в пиццерии.",
+                  },
+                ]
           ).map((p) => {
             const active = props.payment === p.id;
-            const disabled = !!p.disabled;
             return (
               <button
                 key={p.id}
                 type="button"
-                disabled={disabled}
-                onClick={() => !disabled && props.setPayment(p.id)}
+                onClick={() => props.setPayment(p.id)}
                 className={cn(
                   "border-2 border-ink p-3 text-left transition-colors",
-                  disabled && "opacity-40 cursor-not-allowed",
-                  active && !disabled ? "bg-ink text-cream" : "bg-cream hover:bg-cream-deep",
+                  active ? "bg-ink text-cream" : "bg-cream hover:bg-cream-deep",
                 )}
               >
                 <div className="font-display uppercase tracking-wider text-sm">{p.title}</div>
-                <div className={cn("text-[12px] mt-1", active && !disabled ? "text-cream/70" : "text-smoke")}>
+                <div className={cn("text-[12px] mt-1", active ? "text-cream/70" : "text-smoke")}>
                   {p.desc}
                 </div>
               </button>

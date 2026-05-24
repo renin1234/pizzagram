@@ -1,20 +1,19 @@
 import Image from "next/image";
 import { Flame, ArrowRight } from "lucide-react";
+import HeroParallax from "./hero-parallax";
 
 export default function Hero() {
   return (
     <section className="relative overflow-hidden border-b-2 border-ink">
-      {/* Background number "01" — sets a magazine "issue" feel */}
-      <div className="pointer-events-none absolute -right-6 top-2 select-none opacity-[0.06] font-display text-[260px] leading-none">
-        №01
-      </div>
+      {/* Фоновый «№01» с параллакс-эффектом глубины при скролле */}
+      <HeroParallax />
 
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 pt-10 lg:pt-16 pb-14 lg:pb-20 relative z-10">
         <div className="grid grid-cols-12 gap-6 lg:gap-10 items-start">
           {/* LEFT — HEADLINE */}
-          <div className="col-span-12 lg:col-span-7 relative">
+          <div className="col-span-12 lg:col-span-6 relative">
             <div className="flex items-center gap-3 mb-6 animate-rise" style={{ animationDelay: "60ms" }}>
-              <span className="eyebrow">№ 01 — Меню весна 2026</span>
+              <span className="eyebrow">№ 01 — Меню 2026</span>
               <span className="h-px flex-1 bg-ink/30 max-w-[180px]" />
               <span className="eyebrow text-crimson">Краснодар</span>
             </div>
@@ -56,7 +55,7 @@ export default function Hero() {
             </div>
 
             {/* small stats row */}
-            <div className="mt-12 grid grid-cols-3 max-w-lg dotline-wrap animate-rise" style={{ animationDelay: "460ms" }}>
+            <div className="mt-10 grid grid-cols-3 max-w-lg dotline-wrap animate-rise" style={{ animationDelay: "460ms" }}>
               <Stat big="60" small="минут — среднее время доставки" />
               <Stat big="23" small="вида пиццы каждый день" />
               <Stat big="5.0" small="★ на Яндекс.Картах · 72 отзыва" />
@@ -64,8 +63,8 @@ export default function Hero() {
           </div>
 
           {/* RIGHT — PIZZA VISUAL */}
-          <div className="col-span-12 lg:col-span-5 relative">
-            <div className="relative aspect-square max-w-[560px] mx-auto">
+          <div className="col-span-12 lg:col-span-6 relative lg:self-center lg:-mr-12">
+            <div className="relative aspect-square max-w-[320px] sm:max-w-[500px] lg:max-w-[660px] mx-auto lg:ml-auto lg:mr-0">
               {/* slowly rotating ring with caption */}
               <svg
                 viewBox="0 0 200 200"
@@ -82,11 +81,9 @@ export default function Hero() {
                   className="font-display"
                   fill="currentColor"
                   fontSize="9"
-                  textLength={578}
-                  lengthAdjust="spacing"
                 >
                   <textPath href="#ring">
-                    {"PIZZAGRAM · KRASNODAR · С 2025 · TESTO · FUOCO · FORNO · AMORE · "}
+                    {"PIZZAGRAM · KRASNODAR · С 2025 · TESTO · FUOCO · FORNO · AMORE · PIZZAGRAM · KRASNODAR · С 2025 · TESTO · FUOCO · FORNO · AMORE · "}
                   </textPath>
                 </text>
               </svg>
@@ -120,8 +117,8 @@ export default function Hero() {
 function Stat({ big, small }: { big: string; small: string }) {
   return (
     <div className="pr-3">
-      <div className="font-display text-4xl sm:text-5xl leading-none">{big}</div>
-      <div className="mt-2 text-[11px] uppercase tracking-widest text-smoke leading-snug">
+      <div className="font-display text-3xl sm:text-5xl leading-none">{big}</div>
+      <div className="mt-1.5 text-[10px] sm:text-[11px] uppercase tracking-widest text-smoke leading-snug">
         {small}
       </div>
     </div>

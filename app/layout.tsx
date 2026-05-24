@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight } from "next/font/google";
 import CookieBanner from "@/components/cookie-banner";
+import PizzaCursor from "@/components/pizza-cursor";
+import PizzaAssistant from "@/components/pizza-assistant";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -36,6 +38,8 @@ export default function RootLayout({
       <body className="font-body antialiased">
         {children}
         <CookieBanner />
+        <PizzaCursor />
+        <PizzaAssistant />
       </body>
     </html>
   );

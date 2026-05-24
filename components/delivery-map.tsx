@@ -251,7 +251,10 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
             );
           });
 
-        // Маркер пиццерии.
+        // Маркер пиццерии — пульсирующая точка (CSS-анимация «волн» поверх карты).
+        const PulseLayout = ymaps.templateLayoutFactory.createClass(
+          '<div class="map-pulse"><span class="map-pulse__dot"></span></div>',
+        );
         map.geoObjects.add(
           new ymaps.Placemark(
             PIZZERIA_COORDS,
@@ -259,7 +262,11 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
               hintContent: "Pizzagram",
               balloonContent: "Pizzagram — ул. Красных Партизан, 1/4 к.8",
             },
-            { preset: "islands#redFoodIcon" },
+            {
+              iconLayout: PulseLayout,
+              iconShape: { type: "Circle", coordinates: [8, 8], radius: 10 },
+              iconOffset: [-8, -8],
+            },
           ),
         );
 
@@ -333,7 +340,7 @@ export default function DeliveryMap({ variant = "full", onResult }: Props) {
                       e.preventDefault();
                       applyPoint(s.coords, s.address);
                     }}
-                    className="block w-full border-b border-ink/10 px-3 py-2 text-left text-[13px] last:border-0 hover:bg-cream-deep"
+                    className="block w-full border-b border-ink/10 px-3 py-3 sm:py-2 text-left text-[13px] last:border-0 hover:bg-cream-deep"
                   >
                     {s.address}
                   </button>

@@ -110,13 +110,13 @@ export default function Footer() {
 
         <div className="mt-6 flex flex-col gap-4">
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
-            <Link href="/policy" className="text-cream/60 hover:text-crimson">
+            <Link href="/policy" className="py-1 text-cream/60 hover:text-crimson">
               Политика конфиденциальности
             </Link>
-            <Link href="/oferta" className="text-cream/60 hover:text-crimson">
+            <Link href="/oferta" className="py-1 text-cream/60 hover:text-crimson">
               Оферта
             </Link>
-            <Link href="/cookies" className="text-cream/60 hover:text-crimson">
+            <Link href="/cookies" className="py-1 text-cream/60 hover:text-crimson">
               Cookies
             </Link>
           </div>
@@ -142,7 +142,7 @@ function SocialIcon({ href, icon, label }: { href: string; icon: string; label: 
       rel="noreferrer"
       aria-label={label}
       title={label}
-      className="w-10 h-10 rounded-[10px] overflow-hidden bg-cream/0 hover:ring-2 hover:ring-crimson transition-all hover:-translate-y-0.5 will-change-transform"
+      className="group relative w-10 h-10 rounded-[10px] overflow-hidden transition-transform duration-200 hover:-translate-y-0.5 will-change-transform"
     >
       <Image
         src={icon}
@@ -151,6 +151,7 @@ function SocialIcon({ href, icon, label }: { href: string; icon: string; label: 
         height={80}
         className="w-full h-full object-cover"
       />
+      <span className="absolute inset-0 bg-crimson opacity-0 group-hover:opacity-75 transition-opacity duration-200 rounded-[10px]" />
     </a>
   );
 }

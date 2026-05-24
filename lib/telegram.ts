@@ -9,6 +9,7 @@ export type OrderLine = {
   sizeLabel: string;
   qty: number;
   price: number;
+  extras?: { name: string; price: number }[];
 };
 
 export type OrderForMessage = {
@@ -35,10 +36,20 @@ function rub(n: number) {
   return new Intl.NumberFormat("ru-RU").format(n) + " ₽";
 }
 
+function esc(s: string): string {
+  return s.replace(/[*_`[\]()]/g, "\\$&");
+}
+
 export function buildOrderMessage(o: OrderForMessage): string {
-  const items = o.lines
-    .map((l) => `• ${l.name} (${l.sizeLabel}) × ${l.qty} — ${rub(l.price * l.qty)}`)
-    .join("\n");
+  const items = o.lines.map((l) => {
+    const base = `• ${esc(l.name)} (${esc(l.sizeLabel)}) × ${l.qty} — ${rub(l.price * l.qty)}`;
+    if (l.extras && l.extras.length > 0) {
+      const extrasList = l.extras.map(e => esc(e.name)).join(", ");
+      const extrasTotal = l.extras.reduce((s, e) => s + e.price, 0) * l.qty;
+      return `${base}\n  ↳ \\+ ${extrasList} \\(${rub(extrasTotal)}\\)`;
+    }
+    return base;
+  }).join("\n");
   const methodLabel = o.method === "delivery" ? "Доставка" : "Самовывоз";
   const paymentLabel =
     o.payment === "online"
@@ -56,10 +67,10 @@ export function buildOrderMessage(o: OrderForMessage): string {
   const lines: string[] = [
     header,
     "",
-    o.orderId ? `*Номер:* ${o.orderId}` : null,
-    `*Имя:* ${o.name}`,
-    `*Телефон:* ${o.phone}`,
-    `*Адрес:* ${o.address}`,
+    o.orderId ? `*Номер:* ${esc(o.orderId)}` : null,
+    `*Имя:* ${esc(o.name)}`,
+    `*Телефон:* ${esc(o.phone)}`,
+    `*Адрес:* ${esc(o.address)}`,
     "",
     `*Состав заказа:*\n${items}`,
     "",
@@ -75,7 +86,7 @@ export function buildOrderMessage(o: OrderForMessage): string {
   ].filter(Boolean) as string[];
 
   if (o.comment && o.comment.trim()) {
-    lines.push(`*Комментарий:* ${o.comment.trim()}`);
+    lines.push(`*Комментарий:* ${esc(o.comment.trim())}`);
   }
   return lines.join("\n");
 }

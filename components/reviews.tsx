@@ -52,8 +52,8 @@ export default function Reviews() {
               <iframe
                 src={`https://yandex.ru/maps-reviews-widget/${ORG_ID}?comments`}
                 title="Отзывы о Pizzagram на Яндекс.Картах"
-                className="block w-full bg-cream"
-                style={{ height: 780, border: 0 }}
+                className="block w-full bg-cream h-[480px] lg:h-[780px]"
+                style={{ border: 0 }}
                 loading="lazy"
               />
             </div>
