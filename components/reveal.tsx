@@ -12,17 +12,21 @@ export function useReveal<T extends HTMLElement>() {
     const el = ref.current;
     if (!el) return;
 
+    // Страховка: если IntersectionObserver не сработал за 600ms — показываем всё равно
+    const fallback = setTimeout(() => setVisible(true), 600);
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
+          clearTimeout(fallback);
           io.disconnect();
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" }
+      { threshold: 0.05, rootMargin: "0px 0px -5% 0px" }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => { io.disconnect(); clearTimeout(fallback); };
   }, []);
 
   return { ref, visible };
