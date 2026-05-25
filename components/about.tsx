@@ -59,17 +59,6 @@ export default function About() {
                     className="absolute inset-0 h-full w-full object-cover object-top"
                   />
                 </div>
-                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
-                  <video
-                    src="/gallery/about-2.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    aria-label="Pizzagram — видео из пиццерии"
-                    className="absolute inset-0 h-full w-full object-cover [object-position:50%_90%]"
-                  />
-                </div>
               </div>
               {/* tall bottom — about-3 */}
               <div className="col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
