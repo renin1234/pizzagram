@@ -37,7 +37,7 @@ export default function About() {
           <div className="col-span-12 lg:col-span-7 relative min-h-[480px]">
             <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-3">
               {/* big — about-1 */}
-              <div className="col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              <div className="col-span-6 lg:col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-1.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
@@ -46,22 +46,8 @@ export default function About() {
                   className="object-cover"
                 />
               </div>
-              {/* top-right — видео-диптих: верхний и нижний слайсы вертикального ролика */}
-              <div className="col-span-2 row-span-3 col-start-5 row-start-1 flex flex-col gap-3">
-                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
-                  <video
-                    src="/gallery/about-2.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    aria-label="Pizzagram — видео из пиццерии"
-                    className="absolute inset-0 h-full w-full object-cover object-top scale-[2.2] origin-top"
-                  />
-                </div>
-              </div>
               {/* tall bottom — about-3 */}
-              <div className="col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              <div className="hidden lg:block col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-3.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
