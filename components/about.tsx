@@ -36,7 +36,7 @@ export default function About() {
           {/* Photos col — collage */}
           <div className="col-span-12 lg:col-span-7 relative min-h-[480px]">
             <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-3">
-              {/* big — about-1 */}
+              {/* big — about-1, full width on mobile */}
               <div className="col-span-6 lg:col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-1.jpg"
@@ -46,34 +46,39 @@ export default function About() {
                   className="object-cover"
                 />
               </div>
-              {/* small top — about-3 */}
-              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-1 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              {/* top-right — видео-диптих (только десктоп) */}
+              <div className="hidden lg:flex col-span-2 row-span-3 col-start-5 row-start-1 flex-col gap-3">
+                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+                  <video
+                    src="/gallery/about-2.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    aria-label="Pizzagram — видео из пиццерии"
+                    className="absolute inset-0 h-full w-full object-cover object-top"
+                  />
+                </div>
+                <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
+                  <video
+                    src="/gallery/about-2.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    aria-label="Pizzagram — видео из пиццерии"
+                    className="absolute inset-0 h-full w-full object-cover object-bottom"
+                  />
+                </div>
+              </div>
+              {/* tall bottom — about-3 (только десктоп) */}
+              <div className="hidden lg:block col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-3.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
                   fill
-                  sizes="(min-width: 1024px) 15vw"
+                  sizes="(min-width: 1024px) 20vw, 50vw"
                   className="object-cover"
-                />
-              </div>
-              {/* small mid — about-4 */}
-              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-3 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
-                <Image
-                  src="/gallery/about-4.jpg"
-                  alt="Pizzagram — пиццерия в Краснодаре"
-                  fill
-                  sizes="(min-width: 1024px) 15vw"
-                  className="object-cover"
-                />
-              </div>
-              {/* small bottom — about-3 повтор */}
-              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-5 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
-                <Image
-                  src="/gallery/about-3.jpg"
-                  alt="Pizzagram — пиццерия в Краснодаре"
-                  fill
-                  sizes="(min-width: 1024px) 15vw"
-                  className="object-cover object-bottom"
                 />
               </div>
             </div>
