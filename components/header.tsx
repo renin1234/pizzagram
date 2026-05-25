@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShoppingBag, Phone, MapPin } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { cn, formatRub } from "@/lib/utils";
+import UserMenu from "@/components/user-menu";
 
 const NAV = [
   { href: "#menu", label: "Меню" },
@@ -17,10 +18,13 @@ const NAV = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [shake, setShake] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const count = useCart((s) => s.totalCount());
   const total = useCart((s) => s.totalPrice());
   const pulse = useCart((s) => s.pulse);
   const openDrawer = useCart((s) => s.openDrawer);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -91,28 +95,31 @@ export default function Header() {
             ))}
           </nav>
 
-          <button
-            onClick={openDrawer}
-            aria-label="Открыть корзину"
-            className="relative inline-flex items-center gap-2 border-2 border-ink bg-cream hover:bg-ink hover:text-cream transition-colors px-3 h-10 font-display uppercase tracking-wider"
-          >
-            <ShoppingBag className={cn("w-4 h-4", shake && "cart-shake")} />
-            <span className="hidden sm:inline">Корзина</span>
-            <span
-              className={cn(
-                "inline-flex items-center justify-center text-[11px] min-w-[20px] h-[20px] px-1 rounded-full font-bold transition-all",
-                count > 0 ? "bg-crimson text-cream" : "bg-cream-deep text-ink"
-              )}
+          <div className="flex items-center gap-2">
+            <UserMenu />
+
+            <button
+              onClick={openDrawer}
+              aria-label="Открыть корзину"
+              className="relative inline-flex items-center gap-2 border-2 border-ink bg-cream hover:bg-ink hover:text-cream transition-colors px-3 h-10 font-display uppercase tracking-wider"
             >
-              {count}
-            </span>
-            {/* Живая сумма корзины — обновляется реактивно вместе со счётчиком */}
-            {count > 0 && (
-              <span className="hidden sm:inline text-[13px] tabular-nums">
-                {formatRub(total)}
+              <ShoppingBag className={cn("w-4 h-4", shake && "cart-shake")} />
+              <span className="hidden sm:inline">Корзина</span>
+              <span
+                className={cn(
+                  "inline-flex items-center justify-center text-[11px] min-w-[20px] h-[20px] px-1 rounded-full font-bold transition-all",
+                  mounted && count > 0 ? "bg-crimson text-cream" : "bg-cream-deep text-ink"
+                )}
+              >
+                {mounted ? count : 0}
               </span>
-            )}
-          </button>
+              {mounted && count > 0 && (
+                <span className="hidden sm:inline text-[13px] tabular-nums">
+                  {formatRub(total)}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

@@ -1,15 +1,19 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { formatRub } from "@/lib/utils";
 
 export default function StickyCta() {
+  const [mounted, setMounted] = useState(false);
   const count = useCart((s) => s.totalCount());
   const total = useCart((s) => s.totalPrice());
   const open = useCart((s) => s.openDrawer);
 
-  if (count === 0) return null;
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted || count === 0) return null;
 
   return (
     <button
