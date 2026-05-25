@@ -78,12 +78,12 @@ export default function AuthModal({ onClose }: Props) {
     <>
       <div className="fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm" onClick={onClose} aria-hidden />
 
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+      <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto">
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Вход в личный кабинет"
-          className="relative w-full sm:max-w-sm bg-cream border-2 border-t-2 sm:border-2 border-ink shadow-[0_-4px_0_var(--ink)] sm:shadow-[8px_8px_0_var(--ink)] p-6 sm:p-8"
+          className="relative w-full max-w-sm bg-cream border-2 border-ink shadow-[0_-4px_0_var(--ink)] p-6 sm:p-8 mt-auto"
         >
           <button
             onClick={onClose}
