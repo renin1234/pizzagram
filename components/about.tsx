@@ -46,14 +46,34 @@ export default function About() {
                   className="object-cover"
                 />
               </div>
-              {/* tall bottom — about-3 */}
-              <div className="hidden lg:block col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              {/* small top — about-3 */}
+              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-1 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-3.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
                   fill
-                  sizes="(min-width: 1024px) 20vw, 50vw"
+                  sizes="(min-width: 1024px) 15vw"
                   className="object-cover"
+                />
+              </div>
+              {/* small mid — about-4 */}
+              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-3 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--crimson)]">
+                <Image
+                  src="/gallery/about-4.jpg"
+                  alt="Pizzagram — пиццерия в Краснодаре"
+                  fill
+                  sizes="(min-width: 1024px) 15vw"
+                  className="object-cover"
+                />
+              </div>
+              {/* small bottom — about-3 повтор */}
+              <div className="hidden lg:block col-span-2 row-span-2 col-start-5 row-start-5 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+                <Image
+                  src="/gallery/about-3.jpg"
+                  alt="Pizzagram — пиццерия в Краснодаре"
+                  fill
+                  sizes="(min-width: 1024px) 15vw"
+                  className="object-cover object-bottom"
                 />
               </div>
             </div>
