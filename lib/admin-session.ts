@@ -5,7 +5,7 @@
  */
 import { SignJWT, jwtVerify } from "jose";
 
-const COOKIE_NAME = "admin_session";
+export const COOKIE_NAME = "admin_session";
 const COOKIE_MAX_AGE = 60 * 60 * 8; // 8 hours
 
 function getSecret(): Uint8Array {
@@ -42,9 +42,11 @@ export async function getAdminSessionFromRequest(req: Request): Promise<boolean>
 }
 
 export function buildAdminCookie(token: string): string {
-  return `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}${secure}`;
 }
 
 export function clearAdminCookie(): string {
-  return `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`;
 }

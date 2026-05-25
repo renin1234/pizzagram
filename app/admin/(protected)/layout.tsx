@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { verifyAdminSession } from "@/lib/admin-session";
+import { verifyAdminSession, COOKIE_NAME } from "@/lib/admin-session";
 import Link from "next/link";
 
 export default async function AdminProtectedLayout({
@@ -9,7 +9,7 @@ export default async function AdminProtectedLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("admin_session")?.value;
+  const token = cookieStore.get(COOKIE_NAME)?.value;
 
   if (!token || !(await verifyAdminSession(token))) {
     redirect("/admin/login");
