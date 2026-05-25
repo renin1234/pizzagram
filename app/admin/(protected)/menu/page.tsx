@@ -44,17 +44,29 @@ export default function AdminMenuPage() {
   }, [fetchMenu]);
 
   async function toggleHidden(item: MenuItem) {
-    await fetch(`/api/admin/menu/${item.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hidden: !item.hidden }),
-    });
+    try {
+      const res = await fetch(`/api/admin/menu/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hidden: !item.hidden }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+      return;
+    }
     fetchMenu();
   }
 
   async function handleDelete(item: MenuItem) {
     if (!window.confirm(`Удалить «${item.name}»? Это действие нельзя отменить.`)) return;
-    await fetch(`/api/admin/menu/${item.id}`, { method: "DELETE" });
+    try {
+      const res = await fetch(`/api/admin/menu/${item.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка удаления");
+      return;
+    }
     fetchMenu();
   }
 
