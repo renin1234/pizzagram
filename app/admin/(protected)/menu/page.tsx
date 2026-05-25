@@ -40,6 +40,7 @@ export default function AdminMenuPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMenu();
   }, [fetchMenu]);
 
