@@ -56,7 +56,7 @@ export default function About() {
                     muted
                     playsInline
                     aria-label="Pizzagram — видео из пиццерии"
-                    className="absolute inset-0 h-full w-full object-cover object-top"
+                    className="absolute inset-0 h-full w-full object-cover object-top scale-[2.2] origin-top"
                   />
                 </div>
               </div>
