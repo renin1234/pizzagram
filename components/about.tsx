@@ -47,7 +47,7 @@ export default function About() {
                 />
               </div>
               {/* top-right — видео-диптих: верхний и нижний слайсы вертикального ролика */}
-              <div className="col-span-2 row-span-3 col-start-5 row-start-1 flex flex-col gap-3">
+              <div className="hidden lg:flex col-span-2 row-span-3 col-start-5 row-start-1 flex-col gap-3">
                 <div className="relative flex-1 border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                   <video
                     src="/gallery/about-2.mp4"
@@ -72,7 +72,7 @@ export default function About() {
                 </div>
               </div>
               {/* tall bottom — about-3 */}
-              <div className="col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              <div className="hidden lg:block col-span-2 row-span-3 col-start-5 row-start-4 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-3.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"

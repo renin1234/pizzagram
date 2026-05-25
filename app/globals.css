@@ -341,15 +341,21 @@ body::before {
 html.pizza-cursor-on .pizza-cursor { display: block; }
 html.pizza-cursor-on,
 html.pizza-cursor-on * { cursor: none !important; }
+@media (max-width: 1023px) {
+  html.pizza-cursor-on .pizza-cursor { display: none !important; }
+  html.pizza-cursor-on,
+  html.pizza-cursor-on * { cursor: auto !important; }
+}
 .pizza-cursor__glyph {
   display: block;
   font-size: 26px;
   line-height: 1;
-  /* rotate(135deg) — разворачиваем остриё ломтика вверх-влево, как у курсора */
-  transform: translate(-50%, -50%) rotate(135deg);
+  /* rotate(135deg) — остриё ломтика вверх-влево.
+     translate(-23%, -23%) совмещает кончик (хотспот) с координатами мыши. */
+  transform: translate(-23%, -23%) rotate(135deg);
   transition: transform 0.12s ease;
   filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35));
 }
 .pizza-cursor--bite .pizza-cursor__glyph {
-  transform: translate(-50%, -50%) rotate(135deg) scale(0.6);
+  transform: translate(-23%, -23%) rotate(135deg) scale(0.6);
 }
