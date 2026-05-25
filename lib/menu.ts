@@ -20,7 +20,8 @@ export type MenuItem = {
 /**
  * Public menu — items with hidden:true are excluded.
  * Data comes from data/menu.json (editable via admin panel).
- * Changes take effect after server restart in production.
+ * In production: requires `npm run build` + redeploy (data is bundled at build time).
+ * In development: HMR picks up changes automatically.
  */
 export const menu: MenuItem[] = (menuJson as unknown as MenuItem[]).filter(
   (item) => !item.hidden
