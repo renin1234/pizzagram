@@ -1,7 +1,7 @@
 /**
- * One-time migration: exports lib/menu.ts array to data/menu.json.
- * Run: npx tsx scripts/generate-menu-json.ts
- * (Keep this file — useful for re-seeding.)
+ * ONE-TIME migration script. Run before updating lib/menu.ts to import from JSON.
+ * After data/menu.json exists, do NOT re-run — edits made via admin panel would be lost.
+ * Keep this file for documentation/re-seeding from scratch only.
  */
 import { menu } from "../lib/menu";
 import { writeFileSync, mkdirSync } from "fs";

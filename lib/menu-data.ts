@@ -32,7 +32,9 @@ export function updateMenuItem(id: string, patch: Partial<MenuItem>): MenuItem {
   const items = readMenu();
   const idx = items.findIndex((i) => i.id === id);
   if (idx === -1) throw new Error(`Item "${id}" not found`);
-  const updated = { ...items[idx], ...patch } as MenuItem;
+  // Strip id from patch — callers must not rename items
+  const { id: _discarded, ...safePatch } = patch as Partial<MenuItem> & { id?: string };
+  const updated = { ...items[idx], ...safePatch } as MenuItem;
   items[idx] = updated;
   writeMenu(items);
   return updated;
