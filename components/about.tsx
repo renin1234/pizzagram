@@ -37,7 +37,7 @@ export default function About() {
           <div className="col-span-12 lg:col-span-7 relative min-h-[480px]">
             <div className="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-3">
               {/* big — about-1 */}
-              <div className="col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
+              <div className="col-span-6 lg:col-span-4 row-span-6 relative border-2 border-ink overflow-hidden shadow-[6px_6px_0_var(--ink)]">
                 <Image
                   src="/gallery/about-1.jpg"
                   alt="Pizzagram — пиццерия в Краснодаре"
