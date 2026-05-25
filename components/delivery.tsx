@@ -23,9 +23,9 @@ export default function Delivery() {
           </div>
 
           {/* RIGHT — 2×2: compact cards + contact groups */}
-          <div className="col-span-12 lg:col-span-7 grid sm:grid-cols-2 gap-4">
+          <div className="col-span-12 lg:col-span-7 grid sm:grid-cols-2 gap-0 sm:gap-4">
             {/* Delivery card — compact */}
-            <div className="bg-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--ink)] relative">
+            <div className="bg-cream border-2 border-ink p-4 shadow-none sm:shadow-[8px_8px_0_var(--ink)] relative">
               <div className="absolute -top-3 -right-3 bg-crimson border-2 border-ink text-cream font-display uppercase text-xs tracking-widest px-3 py-1">
                 Доставка
               </div>
@@ -42,7 +42,7 @@ export default function Delivery() {
             </div>
 
             {/* Pickup card — compact */}
-            <div className="bg-ink text-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--crimson)] relative">
+            <div className="bg-ink text-cream border-2 border-ink p-4 shadow-none sm:shadow-[8px_8px_0_var(--crimson)] relative">
               <div className="absolute -top-3 -right-3 bg-cream border-2 border-ink text-ink font-display uppercase text-xs tracking-widest px-3 py-1">
                 Самовывоз
               </div>
