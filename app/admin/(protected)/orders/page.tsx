@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
                   </td>
 
                   <td className="py-3 pr-4 max-w-[200px]">
-                    {order.lines.map((l, i) => (
+                    {(order.lines ?? []).map((l, i) => (
                       <div key={i} className="text-ink/80 text-xs">
                         {l.name} × {l.qty}
                       </div>

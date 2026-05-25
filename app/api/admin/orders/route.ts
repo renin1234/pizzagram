@@ -18,5 +18,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "DB error" }, { status: 500 });
   }
 
-  return NextResponse.json({ orders: data ?? [] });
+  // Normalize Supabase join: users can be object, null, or array depending on FK resolution
+  const orders = (data ?? []).map((o) => ({
+    ...o,
+    users: Array.isArray(o.users) ? (o.users[0] ?? null) : o.users,
+  }));
+
+  return NextResponse.json({ orders });
 }
