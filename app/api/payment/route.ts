@@ -29,6 +29,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "payment должен быть 'online'" }, { status: 400 });
   }
 
+  const phone = toE164(payload.phone);
+  if (phone.replace(/\D/g, "").length < 11) {
+    return NextResponse.json(
+      { error: "Укажите полный номер телефона (например, +7 900 123-45-67)" },
+      { status: 400 },
+    );
+  }
+
   const cfg = getConfig();
   const orderId = `PG-${Date.now().toString(36)}-${crypto.randomBytes(2).toString("hex")}`.toUpperCase();
   const session = await getSessionFromRequest(req);
@@ -71,9 +79,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("YooKassa payment failed:", msg);
-    return NextResponse.json({ error: msg }, { status: 502 });
+    console.error("YooKassa payment failed:", err);
+    return NextResponse.json(
+      { error: "Не удалось создать платёж. Попробуйте ещё раз или выберите оплату при получении." },
+      { status: 502 },
+    );
   }
 }
 

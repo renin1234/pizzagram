@@ -483,9 +483,10 @@ function CheckoutForm(props: {
           onChange={(e) => props.setPhone(e.target.value)}
           required
           type="tel"
-          placeholder="+7 ___ ___ __ __"
+          placeholder="+7 900 123-45-67"
           className="input"
         />
+        <span className="block text-[11px] text-smoke mt-1">Полный номер с кодом страны — нужен для чека</span>
       </Field>
 
       <Field label="Способ получения">
