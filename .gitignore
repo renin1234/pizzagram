@@ -13,3 +13,6 @@ tsconfig.tsbuildinfo
 mob-*.png
 screenshot-*.png
 screenshot-*.js
+
+.vercel
+.env*.local

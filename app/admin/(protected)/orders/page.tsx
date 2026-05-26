@@ -39,8 +39,8 @@ export default function AdminOrdersPage() {
     setError("");
     try {
       const res = await fetch("/api/admin/orders");
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
       setOrders(data.orders ?? []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка загрузки");
