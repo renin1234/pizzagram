@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       amountRub: enrichedPayload.total,
       orderId,
       description: `Заказ Pizzagram ${orderId}`,
-      returnUrl: `${siteUrl}/`,
+      returnUrl: `${siteUrl}/payment-success?order=${orderId}`,
       customerPhone: toE164(enrichedPayload.phone),
       receiptItems: buildReceiptItems(enrichedPayload),
     });
