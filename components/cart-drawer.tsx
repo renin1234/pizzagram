@@ -356,7 +356,7 @@ function CartList({
         <ShoppingBag className="w-12 h-12 text-ink/30" />
         <div className="font-display text-2xl uppercase">Пока пусто</div>
         <p className="quote text-ink/70">
-          Соберите свой заказ из меню — мы испечём всё за 60 минут.
+          Соберите свой заказ из меню — мы быстро все испечем.
         </p>
       </div>
     );
