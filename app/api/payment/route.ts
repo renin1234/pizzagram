@@ -71,11 +71,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
   } catch (err) {
-    console.error("YooKassa payment failed:", err);
-    return NextResponse.json(
-      { error: "Не удалось создать платёж. Попробуйте ещё раз или выберите оплату при получении." },
-      { status: 502 },
-    );
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("YooKassa payment failed:", msg);
+    return NextResponse.json({ error: msg }, { status: 502 });
   }
 }
 
