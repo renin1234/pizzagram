@@ -70,7 +70,9 @@ export function buildOrderMessage(o: OrderForMessage): string {
     o.orderId ? `*Номер:* ${esc(o.orderId)}` : null,
     `*Имя:* ${esc(o.name)}`,
     `*Телефон:* ${esc(o.phone)}`,
-    `*Адрес:* ${esc(o.address)}`,
+    o.method === "delivery"
+      ? `*Адрес:* ${esc(o.address)}\n[Открыть на карте](https://yandex\\.ru/maps/?text=${encodeURIComponent(o.address)})`
+      : `*Адрес:* ${esc(o.address)}`,
     "",
     `*Состав заказа:*\n${items}`,
     "",

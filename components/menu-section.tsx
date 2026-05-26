@@ -223,6 +223,15 @@ function PizzaCard({
             <Plus className="w-5 h-5" strokeWidth={3} />
           </button>
         </div>
+
+        {(item.category === "pizza" || item.category === "snacks") && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpenModal(item); }}
+            className="mt-2 w-full text-[11px] font-display uppercase tracking-widest text-smoke hover:text-crimson transition-colors text-center py-1 border border-dashed border-smoke/40 hover:border-crimson/50"
+          >
+            {item.category === "snacks" ? "+ Добавить соус" : "+ Добавить ингредиенты"}
+          </button>
+        )}
       </div>
     </article>
   );

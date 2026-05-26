@@ -15,7 +15,10 @@ export async function readMenu(): Promise<MenuItem[]> {
   try {
     const { blobs } = await list({ prefix: BLOB_PATH, limit: 1 });
     if (!blobs.length) return menuFallback as unknown as MenuItem[];
-    const res = await fetch(blobs[0].url, { cache: "no-store" });
+    const res = await fetch(blobs[0].url, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+    });
     if (!res.ok) return menuFallback as unknown as MenuItem[];
     return res.json();
   } catch {
@@ -25,7 +28,7 @@ export async function readMenu(): Promise<MenuItem[]> {
 
 export async function writeMenu(items: MenuItem[]): Promise<void> {
   await put(BLOB_PATH, JSON.stringify(items, null, 2), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     contentType: "application/json",
   });

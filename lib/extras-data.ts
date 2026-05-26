@@ -17,7 +17,10 @@ export async function readExtras(): Promise<ExtrasFile> {
   try {
     const { blobs } = await list({ prefix: BLOB_PATH, limit: 1 });
     if (!blobs.length) return extrasFallback as ExtrasFile;
-    const res = await fetch(blobs[0].url, { cache: "no-store" });
+    const res = await fetch(blobs[0].url, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+    });
     if (!res.ok) return extrasFallback as ExtrasFile;
     return res.json();
   } catch {
@@ -27,7 +30,7 @@ export async function readExtras(): Promise<ExtrasFile> {
 
 export async function writeExtras(data: ExtrasFile): Promise<void> {
   await put(BLOB_PATH, JSON.stringify(data, null, 2), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     contentType: "application/json",
   });
