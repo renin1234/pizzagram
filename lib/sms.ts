@@ -25,7 +25,7 @@ export async function sendSms(phone: string, code: string): Promise<void> {
   const sign = process.env.SMSAERO_SIGN ?? "SMS Aero";
 
   const params = new URLSearchParams({
-    number: phone,
+    number: phone.replace(/^\+/, ""),
     text: `Ваш код Pizzagram: ${code}`,
     sign,
     channel: "DIRECT",
