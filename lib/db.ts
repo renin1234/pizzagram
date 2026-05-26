@@ -1,12 +1,15 @@
 /**
  * Server-side only. Neon serverless Postgres client.
- * Requires DATABASE_URL in environment.
- * Set via Vercel Postgres integration or .env.local for local dev.
+ * sql() is called lazily (inside request handlers, not at module load time)
+ * so the build succeeds even without DATABASE_URL in the build environment.
  */
 import { neon } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL not set — database features will fail");
-}
-
-export const sql = neon(process.env.DATABASE_URL ?? "");
+// Wrapper: creates neon instance on first actual query, not at import time.
+// This prevents "No database connection string" errors during Next.js build.
+export const sql = (strings: TemplateStringsArray, ...values: unknown[]) => {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL не задан в переменных окружения");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return neon(url)(strings, ...(values as any[]));
+};
