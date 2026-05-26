@@ -82,19 +82,38 @@ export default function UserMenu() {
 
 function UserDropdown({ user, logout }: { user: string; logout: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [panelPos, setPanelPos] = useState({ top: 0, right: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (
+        panelRef.current && !panelRef.current.contains(target) &&
+        btnRef.current && !btnRef.current.contains(target)
+      ) setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPanelPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+    }
+  }, [open]);
+
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
+        ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "inline-flex items-center gap-2 border-2 border-ink px-3 h-10 font-display uppercase tracking-wider text-sm transition-colors",
@@ -106,12 +125,16 @@ function UserDropdown({ user, logout }: { user: string; logout: () => Promise<vo
         <ChevronDown className={cn("w-3 h-3 transition-transform", open && "rotate-180")} />
       </button>
 
-      {open && (
-        <div className="absolute right-0 top-[calc(100%+4px)] z-50 w-44 bg-cream border-2 border-ink shadow-[4px_4px_0_var(--ink)]">
+      {open && createPortal(
+        <div
+          ref={panelRef}
+          className="fixed z-[9999] w-44 border-2 border-ink shadow-[4px_4px_0_var(--ink)]"
+          style={{ top: panelPos.top, right: panelPos.right, backgroundColor: "var(--cream)" }}
+        >
           <Link
             href="/account"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-4 py-3 font-display uppercase text-sm tracking-wider hover:bg-creamdeep transition-colors border-b-2 border-ink"
+            className="flex items-center gap-2 px-4 py-3 font-display uppercase text-sm tracking-wider hover:bg-cream-deep transition-colors border-b-2 border-ink"
           >
             <User className="w-4 h-4" /> Кабинет
           </Link>
@@ -121,9 +144,10 @@ function UserDropdown({ user, logout }: { user: string; logout: () => Promise<vo
           >
             <LogOut className="w-4 h-4" /> Выйти
           </button>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 }
 
