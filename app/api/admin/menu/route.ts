@@ -7,7 +7,7 @@ export async function GET(req: Request) {
   if (!(await getAdminSessionFromRequest(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json({ items: readMenu() });
+  return NextResponse.json({ items: await readMenu() });
 }
 
 export async function POST(req: Request) {
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    addMenuItem(body as MenuItem);
+    await addMenuItem(body as MenuItem);
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(

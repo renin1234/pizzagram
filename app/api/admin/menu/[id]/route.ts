@@ -8,7 +8,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await params;
-  const item = getMenuItem(id);
+  const item = await getMenuItem(id);
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ item });
 }
@@ -27,7 +27,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params;
   try {
-    const updated = updateMenuItem(id, patch);
+    const updated = await updateMenuItem(id, patch);
     return NextResponse.json({ ok: true, item: updated });
   } catch (err) {
     return NextResponse.json(
@@ -44,7 +44,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
   const { id } = await params;
   try {
-    deleteMenuItem(id);
+    await deleteMenuItem(id);
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(

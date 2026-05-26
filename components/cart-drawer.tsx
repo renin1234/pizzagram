@@ -4,9 +4,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { X, Minus, Plus, ShoppingBag, ArrowLeft, Check } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
+import { useAuth } from "@/lib/auth-store";
 import { cn, formatRub } from "@/lib/utils";
 import { deliveryCost } from "@/lib/delivery-zones";
 import DeliveryMap, { type AddressResult } from "./delivery-map";
+import { SAUCE_EXTRAS, type Extra } from "@/lib/extras";
 
 type Stage = "cart" | "checkout" | "success";
 type Method = "delivery" | "pickup";
@@ -16,6 +18,7 @@ export default function CartDrawer() {
   const open = useCart((s) => s.drawerOpen);
   const close = useCart((s) => s.closeDrawer);
   const lines = useCart((s) => s.lines);
+  const add = useCart((s) => s.add);
   const setQty = useCart((s) => s.setQty);
   const remove = useCart((s) => s.remove);
   const clear = useCart((s) => s.clear);
@@ -28,10 +31,32 @@ export default function CartDrawer() {
   // form fields
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [method, setMethod] = useState<Method>("delivery");
+
+  const authUser = useAuth((s) => s.user);
+
+  useEffect(() => {
+    if (authUser) {
+      if (authUser.name) setName(authUser.name);
+      if (authUser.phone) setPhone(authUser.phone);
+      if (authUser.address) setAddress(authUser.address);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser]);
   const [payment, setPayment] = useState<Payment>("online");
   const [comment, setComment] = useState("");
   const [delivery, setDelivery] = useState<AddressResult | null>(null);
+  const [sauces, setSauces] = useState<Extra[]>(SAUCE_EXTRAS);
+
+  useEffect(() => {
+    fetch("/api/extras")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { sauces?: Extra[] } | null) => {
+        if (d?.sauces) setSauces(d.sauces);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -208,7 +233,7 @@ export default function CartDrawer() {
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
           {stage === "cart" && (
-            <CartList lines={lines} setQty={setQty} remove={remove} />
+            <CartList lines={lines} setQty={setQty} remove={remove} add={add} sauces={sauces} />
           )}
           {stage === "checkout" && (
             <CheckoutForm
@@ -295,11 +320,23 @@ function CartList({
   lines,
   setQty,
   remove,
+  add,
+  sauces,
 }: {
   lines: ReturnType<typeof useCart.getState>["lines"];
   setQty: (id: string, qty: number) => void;
   remove: (id: string) => void;
+  add: ReturnType<typeof useCart.getState>["add"];
+  sauces: Extra[];
 }) {
+  // Соус уже выбран — либо как extra на закуске, либо как отдельная строка
+  const hasSauce = lines.some(
+    (l) =>
+      l.itemId.startsWith("sauce-") ||
+      (l.extras ?? []).some((e) => e.id.startsWith("sauce-")),
+  );
+  const hasSnack = lines.some((l) => l.itemId.startsWith("snack-"));
+
   if (lines.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center p-8 gap-3">
@@ -313,57 +350,88 @@ function CartList({
   }
 
   return (
-    <ul className="divide-y-2 divide-ink/10">
-      {lines.map((l) => (
-        <li key={l.id} className="p-4 flex gap-3">
-          <div className="relative w-20 h-20 shrink-0 border-2 border-ink overflow-hidden">
-            <Image src={l.image} alt={l.name} fill sizes="80px" className="object-cover" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="font-display uppercase text-[17px] leading-tight">{l.name}</div>
-                <div className="text-[12px] text-smoke mt-0.5">{l.sizeLabel}</div>
-                {(l.extras ?? []).length > 0 && (
-                  <div className="text-[11px] text-smoke/80 mt-0.5 leading-snug">
-                    + {(l.extras ?? []).map(e => e.name).join(", ")}
-                  </div>
-                )}
+    <>
+      <ul className="divide-y-2 divide-ink/10">
+        {lines.map((l) => (
+          <li key={l.id} className="p-4 flex gap-3">
+            <div className="relative w-20 h-20 shrink-0 border-2 border-ink overflow-hidden flex items-center justify-center bg-cream-deep">
+              {l.image ? (
+                <Image src={l.image} alt={l.name} fill sizes="80px" className="object-cover" />
+              ) : (
+                <span className="text-3xl select-none">🥫</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="font-display uppercase text-[17px] leading-tight">{l.name}</div>
+                  <div className="text-[12px] text-smoke mt-0.5">{l.sizeLabel}</div>
+                  {(l.extras ?? []).length > 0 && (
+                    <div className="text-[11px] text-smoke/80 mt-0.5 leading-snug">
+                      + {(l.extras ?? []).map(e => e.name).join(", ")}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => remove(l.id)}
+                  className="w-10 h-10 flex items-center justify-center -mr-2 text-smoke hover:text-crimson transition-colors"
+                  aria-label="Удалить"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="inline-flex items-center border-2 border-ink">
+                  <button
+                    onClick={() => setQty(l.id, l.qty - 1)}
+                    className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
+                    aria-label="Меньше"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="w-10 sm:w-8 text-center font-medium">{l.qty}</span>
+                  <button
+                    onClick={() => setQty(l.id, l.qty + 1)}
+                    className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
+                    aria-label="Больше"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="font-display text-xl">
+                  {formatRub((l.price + (l.extras ?? []).reduce((s, e) => s + e.price, 0)) * l.qty)}
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {hasSnack && !hasSauce && (
+        <div className="p-4 border-t-2 border-ink/10 bg-cream-deep/40">
+          <div className="eyebrow text-smoke text-[11px] mb-2.5">Добавить соус к закуске? · 25 мл · 40 ₽</div>
+          <div className="flex flex-wrap gap-1.5">
+            {sauces.map((sauce) => (
               <button
-                onClick={() => remove(l.id)}
-                className="w-10 h-10 flex items-center justify-center -mr-2 text-smoke hover:text-crimson transition-colors"
-                aria-label="Удалить"
+                key={sauce.id}
+                onClick={() =>
+                  add({
+                    itemId: sauce.id,
+                    name: `Соус ${sauce.name.toLowerCase()}`,
+                    sizeLabel: "25 мл",
+                    price: sauce.price,
+                    image: "",
+                  })
+                }
+                className="border-2 border-ink px-3 py-1.5 text-[12px] font-display uppercase tracking-wide hover:bg-ink hover:text-cream transition-colors"
               >
-                <X className="w-4 h-4" />
+                {sauce.name}
               </button>
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <div className="inline-flex items-center border-2 border-ink">
-                <button
-                  onClick={() => setQty(l.id, l.qty - 1)}
-                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
-                  aria-label="Меньше"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="w-10 sm:w-8 text-center font-medium">{l.qty}</span>
-                <button
-                  onClick={() => setQty(l.id, l.qty + 1)}
-                  className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-ink hover:text-cream"
-                  aria-label="Больше"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <div className="font-display text-xl">
-                {formatRub((l.price + (l.extras ?? []).reduce((s, e) => s + e.price, 0)) * l.qty)}
-              </div>
-            </div>
+            ))}
           </div>
-        </li>
-      ))}
-    </ul>
+        </div>
+      )}
+    </>
   );
 }
 

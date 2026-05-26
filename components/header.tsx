@@ -48,10 +48,15 @@ export default function Header() {
       <div className="bg-ink text-cream text-xs">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 flex items-center justify-between h-9">
           <div className="flex items-center gap-5">
-            <span className="inline-flex items-center gap-1.5 opacity-80">
+            <a
+              href="https://yandex.ru/maps/org/pizzagram/181221150144/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-crimson transition-colors"
+            >
               <MapPin className="w-3.5 h-3.5 hidden sm:inline" />
               ул. Красных Партизан, 1/4 к.8<span className="hidden sm:inline"> · Краснодар</span>
-            </span>
+            </a>
             <span className="hidden sm:inline-flex items-center gap-1.5 opacity-80">
               Ежедневно 11:00 — 22:00
             </span>

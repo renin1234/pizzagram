@@ -1,13 +1,12 @@
 /**
- * ONE-TIME migration script. Run before updating lib/menu.ts to import from JSON.
- * After data/menu.json exists, do NOT re-run — edits made via admin panel would be lost.
- * Keep this file for documentation/re-seeding from scratch only.
+ * ONE-TIME script — kept for documentation/re-seeding from scratch.
+ * data/menu.json is the authoritative source; do NOT re-run unless re-seeding.
  */
-import { menu } from "../lib/menu";
+import menuData from "../data/menu.json";
 import { writeFileSync, mkdirSync } from "fs";
 import path from "path";
 
 const outPath = path.join(process.cwd(), "data", "menu.json");
 mkdirSync(path.dirname(outPath), { recursive: true });
-writeFileSync(outPath, JSON.stringify(menu, null, 2), "utf8");
-console.log(`✓ Wrote ${menu.length} items to data/menu.json`);
+writeFileSync(outPath, JSON.stringify(menuData, null, 2), "utf8");
+console.log(`✓ Wrote ${(menuData as unknown[]).length} items to data/menu.json`);

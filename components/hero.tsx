@@ -64,7 +64,7 @@ export default function Hero() {
 
           {/* RIGHT — PIZZA VISUAL */}
           <div className="hidden lg:flex lg:col-span-6 relative lg:self-center lg:justify-end">
-            <div className="relative aspect-square w-full max-w-[320px] sm:max-w-[500px] lg:max-w-[680px] lg:-mr-16">
+            <div className="relative aspect-square w-full max-w-[320px] sm:max-w-[500px] lg:max-w-[680px] lg:-mr-44">
               {/* slowly rotating ring with caption */}
               <svg
                 viewBox="0 0 200 200"

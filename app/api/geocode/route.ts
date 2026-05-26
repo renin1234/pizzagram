@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { KRASNODAR_BOUNDS } from "@/lib/delivery-zones";
+import { rateLimit, getIP } from "@/lib/rate-limit";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -81,8 +82,14 @@ async function searchAddress(q: string, limit: string): Promise<any[]> {
 }
 
 export async function GET(req: Request) {
+  // 30 запросов с одного IP в минуту (Nominatim сам банит за превышение)
+  const rl = rateLimit(`geocode:${getIP(req)}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json({ error: "Слишком много запросов" }, { status: 429 });
+  }
+
   const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q")?.trim();
+  const q = searchParams.get("q")?.trim().slice(0, 200); // max 200 символов
   const lat = searchParams.get("lat");
   const lon = searchParams.get("lon");
 

@@ -9,3 +9,7 @@ out
 .tmp-photos
 tsconfig.tsbuildinfo
 .claude/settings.local.json
+# Dev screenshots / test captures
+mob-*.png
+screenshot-*.png
+screenshot-*.js

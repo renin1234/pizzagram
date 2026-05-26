@@ -59,7 +59,7 @@ export default function Delivery() {
             </div>
 
             {/* Связаться с нами */}
-            <div className="bg-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--ink)]">
+            <div className="bg-cream border-2 border-ink p-4 shadow-none sm:shadow-[8px_8px_0_var(--ink)]">
               <div className="eyebrow text-crimson text-[11px] mb-3">Связаться с нами</div>
               <div className="flex flex-col gap-2">
                 <a href="tel:+79298358881" className="btn-primary !py-2.5 !text-sm">
@@ -73,7 +73,7 @@ export default function Delivery() {
             </div>
 
             {/* Наши соцсети */}
-            <div className="bg-ink text-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--crimson)]">
+            <div className="hidden sm:block bg-ink text-cream border-2 border-ink p-4 shadow-[8px_8px_0_var(--crimson)]">
               <div className="eyebrow text-crimson text-[11px] mb-3">Наши соцсети</div>
               <div className="flex flex-col gap-2">
                 <SocialBtn href="https://t.me/pizzagram_krd" icon="/icon-telegram.png" label="Канал" title="Подписаться на Telegram-канал" />

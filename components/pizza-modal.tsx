@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { type MenuItem } from "@/lib/menu";
-import { EXTRAS } from "@/lib/extras";
+import { EXTRAS, SAUCE_EXTRAS } from "@/lib/extras";
 import type { Extra } from "@/lib/extras";
+
+type ExtrasFile = { extras: Extra[]; sauces: Extra[] };
 import { useCart } from "@/lib/cart-store";
 import { cn, formatRub } from "@/lib/utils";
 
@@ -19,6 +21,16 @@ export default function PizzaModal({ item, onClose }: Props) {
   const [sizeIdx, setSizeIdx] = useState(0);
   const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
   const [added, setAdded] = useState(false);
+  const [extrasData, setExtrasData] = useState<ExtrasFile>({ extras: EXTRAS, sauces: SAUCE_EXTRAS });
+
+  useEffect(() => {
+    fetch("/api/extras")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: ExtrasFile | null) => {
+        if (d?.extras && d?.sauces) setExtrasData(d);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setSizeIdx(0);
@@ -48,7 +60,8 @@ export default function PizzaModal({ item, onClose }: Props) {
   if (!item) return null;
 
   const size = item.sizes[sizeIdx];
-  const selectedExtras: Extra[] = EXTRAS.filter(e => selectedExtraIds.has(e.id));
+  const extrasList = item.category === "snacks" ? extrasData.sauces : extrasData.extras;
+  const selectedExtras: Extra[] = extrasList.filter(e => selectedExtraIds.has(e.id));
   const extrasSum = selectedExtras.reduce((s, e) => s + e.price, 0);
   const displayPrice = size.price + extrasSum;
 
@@ -95,17 +108,14 @@ export default function PizzaModal({ item, onClose }: Props) {
           </button>
 
           {/* ── Левая колонка: фото ── */}
-          <div className="sm:w-[300px] lg:w-[360px] shrink-0 bg-white flex items-center justify-center">
-            <div
-              className="relative w-full aspect-square"
-              style={{ ["--imgScale" as string]: item.imgScale ?? 1.4 }}
-            >
+          <div className="sm:w-[300px] lg:w-[360px] shrink-0 bg-white flex items-center justify-center p-4 sm:p-6">
+            <div className="relative w-full aspect-square overflow-hidden rounded-3xl">
               <Image
                 src={item.image}
                 alt={item.name}
                 fill
                 sizes="(min-width: 640px) 360px, 100vw"
-                className="object-cover card-img"
+                className="object-contain"
                 priority
               />
             </div>
@@ -154,14 +164,14 @@ export default function PizzaModal({ item, onClose }: Props) {
                 </div>
               )}
 
-              {/* Добавки — только для пиццы */}
-              {item.category === "pizza" && (
+              {/* Добавки для пиццы / соусы для закусок */}
+              {(item.category === "pizza" || item.category === "snacks") && (
                 <div>
                   <p className="font-display uppercase tracking-widest text-[10px] text-smoke mb-3">
-                    Добавить по вкусу
+                    {item.category === "snacks" ? "Соус · 25 мл · 40 ₽" : "Добавить по вкусу"}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
-                    {EXTRAS.map(e => {
+                    {extrasList.map(e => {
                       const active = selectedExtraIds.has(e.id);
                       return (
                         <button

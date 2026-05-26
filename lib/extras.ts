@@ -1,5 +1,13 @@
 export type Extra = { id: string; name: string; price: number };
 
+export const SAUCE_EXTRAS: Extra[] = [
+  { id: "sauce-sweet-sour", name: "Кисло-сладкий", price: 40 },
+  { id: "sauce-garlic",     name: "Чесночный",      price: 40 },
+  { id: "sauce-ketchup",    name: "Кетчуп",          price: 40 },
+  { id: "sauce-cheese",     name: "Сырный",          price: 40 },
+  { id: "sauce-bbq",        name: "Барбекю",         price: 40 },
+];
+
 export const EXTRAS: Extra[] = [
   { id: "olives",     name: "Маслины",             price: 40  },
   { id: "tomatoes",   name: "Помидоры",             price: 40  },

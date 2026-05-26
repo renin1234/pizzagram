@@ -8,13 +8,21 @@ import Footer from "@/components/footer";
 import CartDrawer from "@/components/cart-drawer";
 import StickyCta from "@/components/sticky-cta";
 import Reveal from "@/components/reveal";
+import { readMenu } from "@/lib/menu-data";
 
-export default function Page() {
+// ISR: кешируем рендер на 60 секунд. Обновление меню через админку
+// отображается на сайте в течение минуты без редеплоя.
+export const revalidate = 60;
+
+export default async function Page() {
+  const allMenu = await readMenu();
+  const menu = allMenu.filter((item) => !item.hidden);
+
   return (
     <main className="relative">
       <Header />
       <Hero />
-      <MenuSection />
+      <MenuSection initialMenu={menu} />
       <Reveal><Delivery /></Reveal>
       <Reveal><About /></Reveal>
       <Reveal><Reviews /></Reveal>

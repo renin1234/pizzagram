@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual, createHash } from "crypto";
 import { signAdminSession, buildAdminCookie } from "@/lib/admin-session";
+import { rateLimit, getIP } from "@/lib/rate-limit";
 
 function constantTimeEqual(a: string, b: string): boolean {
   const ha = createHash("sha256").update(a).digest();
@@ -9,6 +10,15 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 export async function POST(req: Request) {
+  // 10 попыток с одного IP за 15 минут, затем блокировка
+  const rl = rateLimit(`admin:login:${getIP(req)}`, 10, 15 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: `Слишком много попыток. Подождите ${rl.retryAfterSec} сек.` },
+      { status: 429 },
+    );
+  }
+
   let body: { password?: string };
   try {
     body = await req.json();

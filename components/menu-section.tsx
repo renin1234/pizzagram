@@ -3,16 +3,16 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Plus, Sparkles } from "lucide-react";
-import { menu, categoryLabels, categoryOrder, type Category, type MenuItem } from "@/lib/menu";
+import { categoryLabels, categoryOrder, type Category, type MenuItem } from "@/lib/menu";
 import { useCart } from "@/lib/cart-store";
 import { useAssistant } from "@/lib/assistant-store";
 import { cn, formatRub } from "@/lib/utils";
 import Reveal, { useReveal } from "@/components/reveal";
 import PizzaModal from "@/components/pizza-modal";
 
-export default function MenuSection() {
+export default function MenuSection({ initialMenu }: { initialMenu: MenuItem[] }) {
   const [active, setActive] = useState<Category>("pizza");
-  const items = useMemo(() => menu.filter((i) => i.category === active), [active]);
+  const items = useMemo(() => initialMenu.filter((i) => i.category === active), [initialMenu, active]);
   const openAssistant = useAssistant((s) => s.setOpen);
   const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
 

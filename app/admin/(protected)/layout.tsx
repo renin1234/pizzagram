@@ -40,6 +40,12 @@ export default async function AdminProtectedLayout({
             >
               Меню
             </Link>
+            <Link
+              href="/admin/extras"
+              className="font-display uppercase text-[11px] tracking-wider hover:text-crimson transition-colors"
+            >
+              Добавки
+            </Link>
             <form action="/api/admin/logout" method="post">
               <button
                 type="submit"
