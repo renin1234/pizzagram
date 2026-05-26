@@ -54,6 +54,10 @@ export async function updateMenuItem(id: string, patch: Partial<MenuItem>): Prom
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _discarded, ...safePatch } = patch as Partial<MenuItem> & { id?: string };
   const updated = { ...items[idx], ...safePatch } as MenuItem;
+  // Empty string means "remove this optional field" (JSON can't send undefined)
+  if (!(updated as unknown as { badge?: string }).badge) {
+    delete (updated as Partial<MenuItem>).badge;
+  }
   items[idx] = updated;
   await writeMenu(items);
   return updated;

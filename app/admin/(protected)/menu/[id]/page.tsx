@@ -58,7 +58,7 @@ function formToItem(form: FormState): MenuItem {
     ingredients: form.ingredients,
     sizes: [{ label: form.sizeLabel, price: Number(form.sizePrice) }],
     image: form.image,
-    badge: (form.badge || undefined) as MenuItem["badge"],
+    badge: form.badge as MenuItem["badge"], // "" when clearing — server will delete the key
     imgScale: form.imgScale ? Number(form.imgScale) : undefined,
     feature: form.feature || undefined,
     hidden: form.hidden || undefined,
