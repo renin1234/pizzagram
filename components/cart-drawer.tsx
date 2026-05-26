@@ -33,6 +33,9 @@ export default function CartDrawer() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [method, setMethod] = useState<Method>("delivery");
+  const [apt, setApt] = useState("");
+  const [floor, setFloor] = useState("");
+  const [privateHouse, setPrivateHouse] = useState(false);
 
   const authUser = useAuth((s) => s.user);
 
@@ -114,6 +117,14 @@ export default function CartDrawer() {
         setError("Этот адрес вне зоны доставки — выберите самовывоз");
         return;
       }
+      if (!privateHouse && !apt.trim()) {
+        setError("Укажите номер квартиры (или отметьте «Частный дом»)");
+        return;
+      }
+      if (!privateHouse && !floor.trim()) {
+        setError("Укажите этаж (или отметьте «Частный дом»)");
+        return;
+      }
       if (belowMin) {
         setError(`Минимальный заказ для вашей зоны — ${formatRub(minOrder)}`);
         return;
@@ -126,7 +137,13 @@ export default function CartDrawer() {
       phone,
       address:
         method === "delivery"
-          ? delivery?.address ?? ""
+          ? [
+              delivery?.address ?? "",
+              !privateHouse && apt.trim() ? `кв. ${apt.trim()}` : null,
+              !privateHouse && floor.trim() ? `этаж ${floor.trim()}` : null,
+            ]
+              .filter(Boolean)
+              .join(", ")
           : "Самовывоз — ул. Красных Партизан, 1/4 к.8",
       method,
       payment,
@@ -243,6 +260,9 @@ export default function CartDrawer() {
               payment={payment} setPayment={setPayment}
               comment={comment} setComment={setComment}
               delivery={delivery} setDelivery={setDelivery}
+              apt={apt} setApt={setApt}
+              floor={floor} setFloor={setFloor}
+              privateHouse={privateHouse} setPrivateHouse={setPrivateHouse}
               belowMin={belowMin} minOrder={minOrder} total={total}
               onSubmit={submit}
               submitting={submitting}
@@ -443,6 +463,9 @@ function CheckoutForm(props: {
   comment: string; setComment: (v: string) => void;
   delivery: AddressResult | null;
   setDelivery: (r: AddressResult | null) => void;
+  apt: string; setApt: (v: string) => void;
+  floor: string; setFloor: (v: string) => void;
+  privateHouse: boolean; setPrivateHouse: (v: boolean) => void;
   belowMin: boolean;
   minOrder: number;
   total: number;
@@ -501,6 +524,49 @@ function CheckoutForm(props: {
             Адрес доставки
           </span>
           <DeliveryMap variant="compact" onResult={props.setDelivery} />
+
+          {/* Квартира / Этаж / Частный дом */}
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={props.privateHouse}
+              onClick={() => props.setPrivateHouse(!props.privateHouse)}
+              className={cn(
+                "w-5 h-5 shrink-0 border-2 border-ink flex items-center justify-center transition-colors",
+                props.privateHouse ? "bg-ink text-cream" : "bg-cream hover:bg-cream-deep"
+              )}
+            >
+              {props.privateHouse && <Check className="w-3 h-3" strokeWidth={3} />}
+            </button>
+            <span className="font-display uppercase tracking-widest text-[11px] text-smoke">
+              Частный дом
+            </span>
+          </label>
+
+          {!props.privateHouse && (
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Квартира">
+                <input
+                  value={props.apt}
+                  onChange={(e) => props.setApt(e.target.value)}
+                  required
+                  placeholder="42"
+                  className="input"
+                />
+              </Field>
+              <Field label="Этаж">
+                <input
+                  value={props.floor}
+                  onChange={(e) => props.setFloor(e.target.value)}
+                  required
+                  placeholder="5"
+                  className="input"
+                />
+              </Field>
+            </div>
+          )}
+
           {props.belowMin && (
             <div className="border-2 border-crimson bg-crimson/10 text-crimson p-3 text-sm">
               Минимальный заказ для вашей зоны — {formatRub(props.minOrder)}. Добавьте
