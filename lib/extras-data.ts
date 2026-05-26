@@ -32,6 +32,7 @@ export async function writeExtras(data: ExtrasFile): Promise<void> {
   await put(BLOB_PATH, JSON.stringify(data, null, 2), {
     access: "private",
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: "application/json",
   });
 }

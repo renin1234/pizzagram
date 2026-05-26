@@ -30,6 +30,7 @@ export async function writeMenu(items: MenuItem[]): Promise<void> {
   await put(BLOB_PATH, JSON.stringify(items, null, 2), {
     access: "private",
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: "application/json",
   });
 }

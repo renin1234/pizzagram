@@ -83,8 +83,7 @@ export default function CartDrawer() {
     }
   };
 
-  const PICKUP_DISCOUNT_RATE = 0.15;
-  const discount = method === "pickup" ? Math.round(total * PICKUP_DISCOUNT_RATE) : 0;
+  const discount = 0;
   const deliveryZone = method === "delivery" ? delivery?.zone ?? null : null;
   const deliveryPrice = method === "delivery" ? deliveryCost(deliveryZone, total) : 0;
   const minOrder = deliveryZone ? deliveryZone.minOrder : 0;
@@ -290,12 +289,6 @@ export default function CartDrawer() {
                 >
                   {deliveryLineText()}
                 </span>
-              </div>
-            )}
-            {discount > 0 && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-display uppercase tracking-widest text-smoke">Скидка самовывоз −15%</span>
-                <span className="font-medium text-crimson">−{formatRub(discount)}</span>
               </div>
             )}
             <div className="flex items-center justify-between">
