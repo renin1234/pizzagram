@@ -55,7 +55,7 @@ export default function Footer() {
                 <span>ул. Красных Партизан, 1/4 к.8<br />ЖК Светлоград · Краснодар</span>
               </li>
               <li className="text-cream/60 text-sm">
-                Ежедневно 11:00 — 21:45
+                Ежедневно 11:00 — 22:00
               </li>
             </ul>
             <div className="mt-5 flex flex-wrap gap-2">
