@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, MapPin } from "lucide-react";
+import CookieSettingsButton from "@/components/cookie-settings-button";
 
 export default function Footer() {
   return (
@@ -54,7 +55,7 @@ export default function Footer() {
                 <span>ул. Красных Партизан, 1/4 к.8<br />ЖК Светлоград · Краснодар</span>
               </li>
               <li className="text-cream/60 text-sm">
-                Ежедневно 11:00 — 22:00
+                Ежедневно 11:00 — 21:45
               </li>
             </ul>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -119,6 +120,7 @@ export default function Footer() {
             <Link href="/cookies" className="py-1 text-cream/60 hover:text-crimson">
               Cookies
             </Link>
+            <CookieSettingsButton />
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-cream/50">
             <div>
