@@ -11,14 +11,14 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const OFF_TOPIC_REPLY =
   "Я помогаю только с выбором пиццы и меню Pizzagram 🍕 Расскажите, чего хочется — острое, сытное, вегетарианское — и я подберу.";
 
-async function callGroq(apiKey: string, messages: GroqMsg[], maxTokens: number): Promise<string> {
+async function callGroq(apiKey: string, messages: GroqMsg[], maxTokens: number, temperature = 0.7): Promise<string> {
   const res = await fetch(GROQ_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens: maxTokens, temperature: 0.7 }),
+    body: JSON.stringify({ model: GROQ_MODEL, messages, max_tokens: maxTokens, temperature }),
   });
 
   if (!res.ok) {
@@ -48,7 +48,8 @@ async function isOnTopic(apiKey: string, userText: string): Promise<boolean> {
           },
           { role: "user", content: userText },
         ],
-        10,
+        20,
+        0,
       )
     ).toUpperCase();
     return !verdict.includes("OFF_TOPIC");
