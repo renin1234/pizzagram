@@ -46,9 +46,6 @@ async function callGemini(opts: {
     contents: opts.contents,
     generationConfig: {
       maxOutputTokens: opts.maxOutputTokens,
-      // thinkingBudget: 0 — отключаем «мышление», иначе оно съедает бюджет
-      // токенов (гард с maxOutputTokens=20 вернул бы пустой ответ).
-      thinkingConfig: { thinkingBudget: 0 },
       ...(opts.json ? { responseMimeType: "application/json" } : {}),
     },
   });
