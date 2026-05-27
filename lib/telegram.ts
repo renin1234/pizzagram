@@ -112,19 +112,24 @@ export async function sendToTelegram(message: string): Promise<{ sent: boolean; 
     };
   }
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: "Markdown",
-      disable_web_page_preview: true,
+  const chatIds = chatId.split(",").map((s) => s.trim()).filter(Boolean);
+  await Promise.all(
+    chatIds.map(async (id) => {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: id,
+          text: message,
+          parse_mode: "Markdown",
+          disable_web_page_preview: true,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Telegram API ${res.status} (chat ${id}): ${body}`);
+      }
     }),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Telegram API ${res.status}: ${body}`);
-  }
+  );
   return { sent: true };
 }
