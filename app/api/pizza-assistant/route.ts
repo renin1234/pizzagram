@@ -67,7 +67,7 @@ async function callGemini(opts: {
     lastStatus = res.status;
     const errBody = await res.text().catch(() => "");
     console.error(`Gemini API ${res.status}: ${errBody.slice(0, 600)}`);
-    if (res.status !== 503) break; // не транзиентная ошибка — выходим сразу
+    if (res.status !== 503) throw new Error(`Gemini API ${res.status}: ${errBody.slice(0, 300)}`); // не транзиентная ошибка — выходим сразу
   }
 
   throw new Error(`Gemini API ${lastStatus}`);
@@ -246,6 +246,7 @@ ${fmtItems(drinks)}
         error: rateLimited
           ? "Слишком много запросов. Подождите минуту и попробуйте снова."
           : "Не удалось получить ответ помощника. Попробуйте ещё раз.",
+        debug: msg.slice(0, 400),
       },
       { status: rateLimited ? 429 : 502 },
     );
