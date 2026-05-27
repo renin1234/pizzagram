@@ -248,12 +248,14 @@ ${fmtItems(drinks)}
     return Response.json({ reply, recommend });
   } catch (err) {
     console.error("pizza-assistant error:", err);
-    const rateLimited = err instanceof Error && err.message.includes("429");
+    const msg = err instanceof Error ? err.message : String(err);
+    const rateLimited = msg.includes("429");
     return Response.json(
       {
         error: rateLimited
           ? "Слишком много запросов подряд. Подождите 10–15 секунд и попробуйте снова."
           : "Не удалось получить ответ помощника. Попробуйте ещё раз.",
+        debug: msg,
       },
       { status: rateLimited ? 429 : 502 },
     );
