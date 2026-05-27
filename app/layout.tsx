@@ -4,6 +4,7 @@ import CookieBanner from "@/components/cookie-banner";
 import PizzaCursor from "@/components/pizza-cursor";
 import PizzaAssistant from "@/components/pizza-assistant";
 import AuthProvider from "@/components/auth-provider";
+import ClosedBanner from "@/components/closed-banner";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="ru" className={interTight.variable}>
       <body className="font-body antialiased">
         <AuthProvider>
+          <ClosedBanner />
           {children}
         </AuthProvider>
         <CookieBanner />

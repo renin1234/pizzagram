@@ -5,7 +5,7 @@ import Image from "next/image";
 import { X, Minus, Plus, ShoppingBag, ArrowLeft, Check } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { useAuth } from "@/lib/auth-store";
-import { cn, formatRub } from "@/lib/utils";
+import { cn, formatRub, shopStatus } from "@/lib/utils";
 import { deliveryCost } from "@/lib/delivery-zones";
 import DeliveryMap, { type AddressResult } from "./delivery-map";
 import { SAUCE_EXTRAS, type Extra } from "@/lib/extras";
@@ -27,6 +27,14 @@ export default function CartDrawer() {
   const [stage, setStage] = useState<Stage>("cart");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsClosed(!shopStatus().open);
+    check();
+    const t = setInterval(check, 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   // form fields
   const [name, setName] = useState("");
@@ -302,7 +310,12 @@ export default function CartDrawer() {
               </div>
             )}
 
-            {stage === "cart" ? (
+            {isClosed ? (
+              <div className="border-2 border-ink bg-ink text-cream text-center p-4">
+                <div className="font-display uppercase tracking-widest text-sm">Кухня закрыта</div>
+                <div className="text-xs mt-1 text-cream/70">Заказы принимаем с 11:00 до 21:45</div>
+              </div>
+            ) : stage === "cart" ? (
               <button
                 onClick={() => setStage("checkout")}
                 className="btn-primary w-full justify-center text-base"
