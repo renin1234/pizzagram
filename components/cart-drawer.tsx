@@ -658,8 +658,7 @@ function CheckoutForm(props: {
 
       <p className="text-[11px] text-smoke leading-relaxed">
         Нажимая «Отправить», вы соглашаетесь с условиями оферты и обработкой
-        персональных данных. Заказ улетит в Telegram-бот пиццерии, оператор перезвонит
-        в течение 5 минут.
+        персональных данных. 
       </p>
     </form>
   );
@@ -684,7 +683,6 @@ function Success({ onClose }: { onClose: () => void }) {
       </div>
       <div className="font-display text-3xl uppercase">Заказ принят</div>
       <p className="quote text-ink/75 max-w-xs">
-        Оператор перезвонит вам в течение 5 минут, чтобы подтвердить заказ.
         Мы уже разогреваем печь.
       </p>
       <button onClick={onClose} className="btn-secondary mt-3">
