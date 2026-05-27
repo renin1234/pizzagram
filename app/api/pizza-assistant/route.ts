@@ -107,7 +107,7 @@ export async function POST(req: Request) {
   const drinks = allMenu.filter((m) => m.category === "drinks");
 
   const fmtItems = (items: typeof allMenu) =>
-    items.map((p) => `- ${p.name} [id:${p.id}] — ${p.ingredients}. ${p.sizes[0].price} ₽`).join("\n");
+    items.map((p) => `- ${p.name} (id=${p.id}) — ${p.ingredients}. ${p.sizes[0].price} ₽`).join("\n");
 
   const systemPrompt = `Ты — помощник пиццерии Pizzagram (Краснодар). Помогаешь гостю выбрать пиццу, закуску или напиток.
 
@@ -124,9 +124,10 @@ ${fmtItems(drinks)}
 - Обсуждай ТОЛЬКО меню, состав, цены, заказ и доставку Pizzagram.
 - Рекомендуй 1-3 позиции строго из меню выше.
 - Отвечай коротко, по-русски, 1-3 предложения.
+- В поле "reply" пиши только читаемый текст — никаких id, скобок, технических меток.
 - Отвечай ТОЛЬКО валидным JSON без markdown:
 {"reply": "текст ответа", "recommend": ["id-позиции"]}
-- В "recommend" — массив id (0-3 шт.) из меню выше.`;
+- В "recommend" — массив id (0-3 шт.) из меню выше. id не упоминай в reply.`;
 
   const messages: GroqMsg[] = [
     { role: "system", content: systemPrompt },
