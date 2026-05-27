@@ -14,8 +14,8 @@ type ChatMsg = { role: "user" | "assistant"; content: string };
 // сообщение не делят один лимит. Обе поддерживают thinkingBudget: 0.
 // ВНИМАНИЕ: у gemini-2.5-flash на free tier всего 20 запросов В СУТКИ —
 // поэтому его здесь нет. gemini-2.0-* вообще убрали из free tier (квота 0).
-const GEMINI_MODEL_MAIN = "gemini-flash-latest";
-const GEMINI_MODEL_GUARD = "gemini-2.5-flash-lite";
+const GEMINI_MODEL_MAIN = "gemini-1.5-flash-latest";
+const GEMINI_MODEL_GUARD = "gemini-1.5-flash-8b-latest";
 
 // Прокси для серверных запросов к Gemini. Нужен там, где Gemini API
 // geo-блокирует регион (напр. РФ): Node.js fetch не использует системный
