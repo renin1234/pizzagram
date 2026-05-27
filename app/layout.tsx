@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "PIZZAGRAM — Честная пицца. Краснодар.",
   description:
     "Пиццерия Pizzagram в Краснодаре. 32 см от 350 ₽. Доставка за 60 минут, самовывоз, ежедневно с 11:00 до 22:00.",
+  icons: { icon: "/logo-mark.png" },
   openGraph: {
     title: "PIZZAGRAM — Честная пицца. Краснодар.",
     description: "32 см от 350 ₽. Доставка за 60 минут.",
