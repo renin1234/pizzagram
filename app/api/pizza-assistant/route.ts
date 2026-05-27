@@ -1,4 +1,3 @@
-import { fetch, ProxyAgent } from "undici";
 import { readMenu } from "@/lib/menu-data";
 
 // AI-помощник по выбору пиццы (Фича 7).
@@ -17,13 +16,6 @@ type ChatMsg = { role: "user" | "assistant"; content: string };
 const GEMINI_MODEL_MAIN = "gemini-1.5-flash-latest";
 const GEMINI_MODEL_GUARD = "gemini-1.5-flash-8b-latest";
 
-// Прокси для серверных запросов к Gemini. Нужен там, где Gemini API
-// geo-блокирует регион (напр. РФ): Node.js fetch не использует системный
-// прокси. Локально — адрес вашего прокси-клиента; на зарубежном хостинге
-// переменную НЕ задавать (запросы пойдут напрямую).
-const proxyDispatcher = process.env.GEMINI_PROXY_URL
-  ? new ProxyAgent(process.env.GEMINI_PROXY_URL)
-  : undefined;
 
 // Готовый отказ — отдаётся, когда гард темы заблокировал офтоп.
 const OFF_TOPIC_REPLY =
@@ -59,7 +51,6 @@ async function callGemini(opts: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: payload,
-      dispatcher: proxyDispatcher,
     });
 
     if (res.ok) {
