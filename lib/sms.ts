@@ -28,7 +28,7 @@ export async function sendSms(phone: string, code: string): Promise<void> {
     number: phone.replace(/^\+/, ""),
     text: `Ваш код Pizzagram: ${code}`,
     sign,
-    channel: "DIRECT",
+    channel: "INFOSMS",
   });
 
   const res = await fetch(

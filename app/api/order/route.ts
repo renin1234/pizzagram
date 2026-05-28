@@ -42,14 +42,12 @@ export async function POST(req: Request) {
   }
 
   const session = await getSessionFromRequest(req);
-  if (session) {
-    const linesTotal = payload.lines.reduce((s, l) => s + l.price * l.qty, 0);
-    const total = (payload as { total?: number }).total ?? linesTotal;
-    sql`
-      INSERT INTO orders (user_id, lines, total, address, payment)
-      VALUES (${session.sub}, ${JSON.stringify(payload.lines)}, ${total}, ${payload.address ?? null}, ${payload.payment})
-    `.catch((err) => console.error("DB order insert error:", err));
-  }
+  const linesTotal = payload.lines.reduce((s, l) => s + l.price * l.qty, 0);
+  const total = (payload as { total?: number }).total ?? linesTotal;
+  sql`
+    INSERT INTO orders (user_id, lines, total, address, payment)
+    VALUES (${session?.sub ?? null}, ${JSON.stringify(payload.lines)}, ${total}, ${payload.address ?? null}, ${payload.payment})
+  `.catch((err) => console.error("DB order insert error:", err));
 
   const message = buildOrderMessage({ ...payload, paid: false });
   try {
