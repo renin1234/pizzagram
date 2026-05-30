@@ -16,6 +16,15 @@ export async function POST(req: Request) {
     );
   }
 
+  // Fail fast: if YooKassa is not configured, no point parsing the request.
+  const cfg = getConfig();
+  if (!cfg) {
+    return NextResponse.json(
+      { error: "Онлайн-оплата временно недоступна. Выберите оплату при получении." },
+      { status: 503 },
+    );
+  }
+
   let payload: OrderForMessage;
   try {
     payload = await req.json();
@@ -35,14 +44,6 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "Укажите полный номер телефона (например, +7 900 123-45-67)" },
       { status: 400 },
-    );
-  }
-
-  const cfg = getConfig();
-  if (!cfg) {
-    return NextResponse.json(
-      { error: "Онлайн-оплата временно недоступна. Выберите оплату при получении." },
-      { status: 503 },
     );
   }
 
