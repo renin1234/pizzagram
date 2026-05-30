@@ -6,7 +6,7 @@ import { rateLimit, getIP } from "@/lib/rate-limit";
 import { verifyAndPriceLines } from "@/lib/order-pricing";
 
 export async function POST(req: Request) {
-  const rl = rateLimit(`order:${getIP(req)}`, 5, 60 * 60 * 1000);
+  const rl = await rateLimit(`order:${getIP(req)}`, 5, 60 * 60 * 1000);
   if (!rl.ok) {
     return NextResponse.json(
       { error: "Слишком много заказов. Попробуйте позже." },

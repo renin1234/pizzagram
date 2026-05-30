@@ -60,7 +60,7 @@ async function isOnTopic(apiKey: string, userText: string): Promise<boolean> {
 
 export async function POST(req: Request) {
   const { rateLimit, getIP } = await import("@/lib/rate-limit");
-  const rl = rateLimit(`ai:${getIP(req)}`, 30, 60 * 60 * 1000);
+  const rl = await rateLimit(`ai:${getIP(req)}`, 30, 60 * 60 * 1000);
   if (!rl.ok) {
     return Response.json(
       { error: `Слишком много запросов. Повторите через ${rl.retryAfterSec} сек.` },

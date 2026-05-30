@@ -83,7 +83,7 @@ async function searchAddress(q: string, limit: string): Promise<any[]> {
 
 export async function GET(req: Request) {
   // 30 запросов с одного IP в минуту (Nominatim сам банит за превышение)
-  const rl = rateLimit(`geocode:${getIP(req)}`, 30, 60 * 1000);
+  const rl = await rateLimit(`geocode:${getIP(req)}`, 30, 60 * 1000);
   if (!rl.ok) {
     return NextResponse.json({ error: "Слишком много запросов" }, { status: 429 });
   }

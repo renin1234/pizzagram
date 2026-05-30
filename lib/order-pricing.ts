@@ -20,7 +20,9 @@ type RawLine = {
   name?: string;
   sizeLabel?: string;
   qty?: unknown;
-  extras?: { id?: string; name?: string }[];
+  /** Accepted from client but deliberately ignored — price is always recomputed server-side. */
+  price?: unknown;
+  extras?: { id?: string; name?: string; price?: unknown }[];
 };
 
 export async function verifyAndPriceLines(

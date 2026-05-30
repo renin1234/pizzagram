@@ -27,12 +27,11 @@ function isYookassaIp(ip: string): boolean {
 }
 
 export async function POST(req: Request) {
-  if (process.env.NODE_ENV === "production") {
-    const ip = getIP(req);
-    if (!isYookassaIp(ip)) {
-      console.warn(`payment-webhook: отклонён запрос с IP ${ip}`);
-      return new Response("Forbidden", { status: 403 });
-    }
+  // IP check in all environments — localhost is exempt only for explicit dev testing.
+  const ip = getIP(req);
+  if (ip !== "127.0.0.1" && ip !== "::1" && !isYookassaIp(ip)) {
+    console.warn(`payment-webhook: отклонён запрос с IP ${ip}`);
+    return new Response("Forbidden", { status: 403 });
   }
 
   const cfg = getConfig();
@@ -70,13 +69,29 @@ export async function POST(req: Request) {
       const rows = await sql`SELECT data FROM pending_orders WHERE id = ${orderId}`;
       if (rows.length > 0) {
         order = rows[0].data as OrderForMessage & { userId?: string | null };
-        const userId = order.userId;
-        if (userId) {
-          sql`
-            INSERT INTO orders (user_id, lines, total, address, payment)
-            VALUES (${userId}, ${JSON.stringify(order.lines)}, ${(order as { total?: number }).total ?? 0}, ${order.address ?? null}, 'online')
-          `.catch((err) => console.error("DB webhook order insert:", err));
+
+        // Verify the paid amount matches what was stored server-side.
+        const paidRub = parseFloat(payment.amount.value);
+        const expectedRub = (order as { total?: number }).total ?? 0;
+        if (Math.abs(paidRub - expectedRub) > 0.01) {
+          console.error(
+            `Webhook amount mismatch for ${orderId}: paid ${paidRub}, expected ${expectedRub}`,
+          );
+          return new Response("Amount mismatch", { status: 400 });
         }
+
+        // Save order regardless of whether user is authenticated (user_id may be null).
+        sql`
+          INSERT INTO orders (user_id, lines, total, address, payment)
+          VALUES (
+            ${order.userId ?? null},
+            ${JSON.stringify(order.lines)},
+            ${expectedRub},
+            ${order.address ?? null},
+            'online'
+          )
+        `.catch((err) => console.error("DB webhook order insert:", err));
+
         await sql`DELETE FROM pending_orders WHERE id = ${orderId}`;
       }
     } catch (err) {

@@ -1,6 +1,7 @@
 /**
  * JWT helpers for the admin session cookie.
- * Uses ADMIN_PASSWORD (from .env.local) as the signing secret.
+ * Signs with ADMIN_JWT_SECRET (separate from ADMIN_PASSWORD).
+ * In development without ADMIN_JWT_SECRET, falls back to ADMIN_PASSWORD-derived key.
  * Cookie name: admin_session, lifetime: 8 hours.
  */
 import { SignJWT, jwtVerify } from "jose";
@@ -9,8 +10,18 @@ export const COOKIE_NAME = "admin_session";
 const COOKIE_MAX_AGE = 60 * 60 * 8; // 8 hours
 
 function getSecret(): Uint8Array {
+  const jwtSecret = process.env.ADMIN_JWT_SECRET;
+  if (jwtSecret) return new TextEncoder().encode(jwtSecret);
+
+  // In production, ADMIN_JWT_SECRET is required — sharing it with ADMIN_PASSWORD
+  // means a leaked password also compromises all existing sessions.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_JWT_SECRET must be set in production (separate from ADMIN_PASSWORD)");
+  }
+
+  // Dev fallback: derive from ADMIN_PASSWORD so local dev works without extra setup.
   const pw = process.env.ADMIN_PASSWORD;
-  if (!pw) throw new Error("ADMIN_PASSWORD не задан в .env.local");
+  if (!pw) throw new Error("ADMIN_PASSWORD или ADMIN_JWT_SECRET не заданы");
   return new TextEncoder().encode(pw + ":admin_jwt_v1");
 }
 

@@ -5,7 +5,7 @@ import { sql } from "@/lib/db";
 export async function GET(req: Request) {
   const session = await getSessionFromRequest(req);
   if (!session) {
-    return NextResponse.json({ user: null }, { status: 401 });
+    return NextResponse.json({ user: null });
   }
 
   const rows = await sql`
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   `;
 
   if (!rows.length) {
-    return NextResponse.json({ user: null }, { status: 401 });
+    return NextResponse.json({ user: null });
   }
 
   return NextResponse.json({ user: rows[0] });

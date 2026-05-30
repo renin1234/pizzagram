@@ -15,7 +15,7 @@ function normalizePhone(raw: string): string | null {
 }
 
 export async function POST(req: Request) {
-  const ipCheck = rateLimit(`sms:ip:${getIP(req)}`, 5, 10 * 60 * 1000);
+  const ipCheck = await rateLimit(`sms:ip:${getIP(req)}`, 5, 10 * 60 * 1000);
   if (!ipCheck.ok) {
     return NextResponse.json(
       { error: `Слишком много запросов. Повторите через ${ipCheck.retryAfterSec} сек.` },
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const phone = normalizePhone(body.phone ?? "");
 
   if (phone) {
-    const phoneCheck = rateLimit(`sms:phone:${phone}`, 3, 10 * 60 * 1000);
+    const phoneCheck = await rateLimit(`sms:phone:${phone}`, 3, 10 * 60 * 1000);
     if (!phoneCheck.ok) {
       return NextResponse.json(
         { error: `SMS уже отправлена. Повторите через ${phoneCheck.retryAfterSec} сек.` },

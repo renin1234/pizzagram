@@ -11,7 +11,7 @@ function constantTimeEqual(a: string, b: string): boolean {
 
 export async function POST(req: Request) {
   // 10 попыток с одного IP за 15 минут, затем блокировка
-  const rl = rateLimit(`admin:login:${getIP(req)}`, 10, 15 * 60 * 1000);
+  const rl = await rateLimit(`admin:login:${getIP(req)}`, 10, 15 * 60 * 1000);
   if (!rl.ok) {
     return NextResponse.json(
       { error: `Слишком много попыток. Подождите ${rl.retryAfterSec} сек.` },

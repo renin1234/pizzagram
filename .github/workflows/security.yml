@@ -1,0 +1,35 @@
+name: Security Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security:
+    name: Security checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npm run typecheck
+
+      - name: Security regression tests
+        run: npm run test:security
+
+      - name: npm audit (high + critical only)
+        # Moderate: Next.js bundles postcss <8.5.10 internally; unfixable until Next.js
+        # ships a fix — tracked at https://github.com/advisories/GHSA-qx2v-qp2m-jg93
+        # We block on high/critical; review moderates manually each sprint.
+        run: npm audit --audit-level=high

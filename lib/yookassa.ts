@@ -83,7 +83,7 @@ export async function createPayment(
 export async function fetchPayment(
   cfg: YooKassaConfig,
   paymentId: string,
-): Promise<{ id: string; status: string; metadata?: Record<string, string> }> {
+): Promise<{ id: string; status: string; amount: { value: string; currency: string }; metadata?: Record<string, string> }> {
   const res = await fetch(`https://api.yookassa.ru/v3/payments/${paymentId}`, {
     headers: { Authorization: auth(cfg) },
     cache: "no-store",

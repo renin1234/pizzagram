@@ -13,7 +13,7 @@ function normalizePhone(raw: string): string | null {
 }
 
 export async function POST(req: Request) {
-  const ipCheck = rateLimit(`otp:ip:${getIP(req)}`, 10, 10 * 60 * 1000);
+  const ipCheck = await rateLimit(`otp:ip:${getIP(req)}`, 10, 10 * 60 * 1000);
   if (!ipCheck.ok) {
     return NextResponse.json(
       { error: `Слишком много попыток. Подождите ${ipCheck.retryAfterSec} сек.` },
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Не хватает данных" }, { status: 400 });
   }
 
-  const phoneCheck = rateLimit(`otp:phone:${phone}`, 5, 15 * 60 * 1000);
+  const phoneCheck = await rateLimit(`otp:phone:${phone}`, 5, 15 * 60 * 1000);
   if (!phoneCheck.ok) {
     return NextResponse.json(
       { error: `Слишком много неверных попыток. Запросите новый код через ${phoneCheck.retryAfterSec} сек.` },

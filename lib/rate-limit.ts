@@ -1,31 +1,75 @@
-type Entry = { count: number; resetAt: number };
-const store = new Map<string, Entry>();
+/**
+ * Rate limiting with Upstash Redis in production, in-memory fallback in dev.
+ *
+ * Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN in Vercel to enable
+ * shared rate limiting across serverless instances. Without those vars the
+ * in-memory Map is used (fine for a single local dev process, not for prod).
+ */
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
-// Чистим старые записи каждые 5 минут, чтобы не копить память
+// In-memory fallback (dev / no Redis configured)
+type Entry = { count: number; resetAt: number };
+const inMemoryStore = new Map<string, Entry>();
+
 setInterval(() => {
   const now = Date.now();
-  for (const [k, v] of store) if (v.resetAt <= now) store.delete(k);
+  for (const [k, v] of inMemoryStore) if (v.resetAt <= now) inMemoryStore.delete(k);
 }, 5 * 60 * 1000).unref?.();
 
-export function rateLimit(
+function inMemoryLimit(
   key: string,
   maxRequests: number,
   windowMs: number,
 ): { ok: boolean; retryAfterSec: number } {
   const now = Date.now();
-  const entry = store.get(key);
-
+  const entry = inMemoryStore.get(key);
   if (!entry || entry.resetAt <= now) {
-    store.set(key, { count: 1, resetAt: now + windowMs });
+    inMemoryStore.set(key, { count: 1, resetAt: now + windowMs });
     return { ok: true, retryAfterSec: 0 };
   }
-
   if (entry.count >= maxRequests) {
     return { ok: false, retryAfterSec: Math.ceil((entry.resetAt - now) / 1000) };
   }
-
   entry.count++;
   return { ok: true, retryAfterSec: 0 };
+}
+
+// Upstash limiters are cached by config key to avoid creating a new instance per request
+const upstashLimiters = new Map<string, Ratelimit>();
+
+function getUpstashLimiter(maxRequests: number, windowMs: number): Ratelimit | null {
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return null;
+  }
+  const cacheKey = `${maxRequests}:${windowMs}`;
+  if (!upstashLimiters.has(cacheKey)) {
+    upstashLimiters.set(
+      cacheKey,
+      new Ratelimit({
+        redis: Redis.fromEnv(),
+        limiter: Ratelimit.slidingWindow(maxRequests, `${windowMs} ms`),
+        analytics: false,
+      }),
+    );
+  }
+  return upstashLimiters.get(cacheKey)!;
+}
+
+export async function rateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number,
+): Promise<{ ok: boolean; retryAfterSec: number }> {
+  const limiter = getUpstashLimiter(maxRequests, windowMs);
+  if (limiter) {
+    const { success, reset } = await limiter.limit(key);
+    return {
+      ok: success,
+      retryAfterSec: success ? 0 : Math.ceil(Math.max(0, reset - Date.now()) / 1000),
+    };
+  }
+  return inMemoryLimit(key, maxRequests, windowMs);
 }
 
 export function getIP(req: Request): string {
