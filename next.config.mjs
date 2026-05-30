@@ -25,11 +25,11 @@ const nextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      // Next.js hydration requires unsafe-inline; Yandex Maps loads additional scripts
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api-maps.yandex.ru https://yandex.ru",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://static.tildacdn.com https://thb.tildacdn.com https://*.yandex.net https://*.yandex.ru",
-      "connect-src 'self' https://api.groq.com https://nominatim.openstreetmap.org https://api-maps.yandex.ru https://*.yandex.net https://*.yandex.ru",
+      // Next.js hydration requires unsafe-inline; Yandex Maps loads scripts from yastatic.net
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api-maps.yandex.ru https://yandex.ru https://yastatic.net",
+      "style-src 'self' 'unsafe-inline' https://yastatic.net",
+      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://static.tildacdn.com https://thb.tildacdn.com https://*.yandex.net https://*.yandex.ru https://yastatic.net",
+      "connect-src 'self' https://api.groq.com https://nominatim.openstreetmap.org https://api-maps.yandex.ru https://*.yandex.net https://*.yandex.ru https://yastatic.net",
       "font-src 'self' data:",
       "frame-src https://yandex.ru",
       "frame-ancestors 'none'",
