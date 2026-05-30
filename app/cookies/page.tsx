@@ -6,10 +6,17 @@ import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
   title: "Cookies — PIZZAGRAM",
-  description: "Какие файлы cookies использует pizzagram.ru.",
+  description: "Какие файлы cookies и локальные данные использует pizzagram.ru.",
 };
 
 const ROWS = [
+  {
+    name: "session",
+    purpose: "Сессионный токен авторизации после входа через SMS-код. Помечен HttpOnly и Secure — JavaScript не может его прочитать, передаётся только по HTTPS.",
+    type: "Необходимый",
+    storage: "Cookie (HttpOnly, Secure)",
+    ttl: "7 дней",
+  },
   {
     name: "pizzagram-cart-v1",
     purpose: "Сохраняет содержимое корзины между визитами, чтобы выбранные пиццы не сбрасывались при перезагрузке.",
@@ -26,9 +33,9 @@ const ROWS = [
   },
   {
     name: "ya_metrika_*",
-    purpose: "Анонимная статистика посещений (Яндекс.Метрика). Помогает понять, что на сайте работает, а что — нет.",
+    purpose: "Анонимная статистика посещений (Яндекс.Метрика). Помогает понять, что на сайте работает, а что — нет. Данные обезличены.",
     type: "Аналитика",
-    storage: "Cookies",
+    storage: "Cookie",
     ttl: "До 24 месяцев",
   },
 ];
@@ -52,6 +59,7 @@ export default function CookiesPage() {
             Никаких трекинга личной переписки, никаких пикселей рекламных сетей — только
             то, без чего сайт не работает, плюс анонимная статистика посещений.
           </p>
+          <div className="mt-4 text-sm text-ink/60">Редакция от 30.05.2026</div>
 
           <div className="dotline my-10" />
 
@@ -83,11 +91,25 @@ export default function CookiesPage() {
 
           <div className="dotline my-10" />
 
+          <h2 className="display text-3xl uppercase mb-5">Защита от злоупотреблений</h2>
+          <p className="quote text-[16px] leading-relaxed text-ink/85 max-w-2xl">
+            На сервере (без участия вашего браузера) используется система ограничения
+            запросов (rate limiting) на базе Upstash Redis. В неё передаётся только
+            технический идентификатор вида «тип_запроса:IP-адрес» для подсчёта числа
+            запросов. Персональные данные (имя, телефон, адрес) туда не передаются.
+            Счётчики хранятся от 1 минуты до 1 часа и автоматически удаляются.
+            Это защищает вас от ситуаций, когда кто-то пытается подобрать ваш SMS-код
+            или устроить массовую рассылку.
+          </p>
+
+          <div className="dotline my-10" />
+
           <h2 className="display text-3xl uppercase mb-5">Как отключить</h2>
           <ul className="space-y-3 quote text-[16px] text-ink/85">
             <li>— Очистите данные сайта в настройках браузера (DevTools → Application → Storage).</li>
-            <li>— Используйте режим инкогнито — данные не сохранятся.</li>
+            <li>— Используйте режим инкогнито — данные не сохранятся после закрытия вкладки.</li>
             <li>— Отказ от аналитики не повлияет на корзину и оформление заказа.</li>
+            <li>— Удаление cookie «session» приведёт к выходу из учётной записи.</li>
           </ul>
 
           <p className="mt-10 text-sm text-ink/70">
