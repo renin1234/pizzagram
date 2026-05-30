@@ -5,7 +5,7 @@ export default function CookieSettingsButton() {
     try {
       localStorage.removeItem("pizzagram-cookies-v1");
     } catch {}
-    window.location.reload();
+    window.dispatchEvent(new Event("pizzagram:show-cookie-banner"));
   };
 
   return (

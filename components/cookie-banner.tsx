@@ -11,10 +11,12 @@ export default function CookieBanner() {
 
   useEffect(() => {
     try {
-      // localStorage есть только на клиенте — читаем его в эффекте после монтирования.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (!localStorage.getItem(STORAGE_KEY)) setShow(true);
     } catch {}
+
+    const onReset = () => setShow(true);
+    window.addEventListener("pizzagram:show-cookie-banner", onReset);
+    return () => window.removeEventListener("pizzagram:show-cookie-banner", onReset);
   }, []);
 
   const accept = (value: "all" | "necessary") => {
