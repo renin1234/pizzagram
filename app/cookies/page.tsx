@@ -2,6 +2,7 @@ import Link from "next/link";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CartDrawer from "@/components/cart-drawer";
+import CookieSettingsButton from "@/components/cookie-settings-button";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
@@ -104,7 +105,16 @@ export default function CookiesPage() {
 
           <div className="dotline my-10" />
 
-          <h2 className="display text-3xl uppercase mb-5">Как отключить</h2>
+          <h2 className="display text-3xl uppercase mb-5">Управление согласием</h2>
+          <p className="quote text-[16px] leading-relaxed text-ink/85 max-w-2xl mb-6">
+            Вы можете в любой момент отозвать согласие на cookies и заново выбрать настройки.
+            Нажмите кнопку ниже — появится баннер выбора:
+          </p>
+          <CookieSettingsButton variant="prominent" />
+
+          <div className="dotline my-10" />
+
+          <h2 className="display text-3xl uppercase mb-5">Как удалить вручную</h2>
           <ul className="space-y-3 quote text-[16px] text-ink/85">
             <li>— Очистите данные сайта в настройках браузера (DevTools → Application → Storage).</li>
             <li>— Используйте режим инкогнито — данные не сохранятся после закрытия вкладки.</li>
