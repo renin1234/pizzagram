@@ -31,7 +31,7 @@ const nextConfig = {
       "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://static.tildacdn.com https://thb.tildacdn.com https://*.yandex.net https://*.yandex.ru",
       "connect-src 'self' https://api.groq.com https://nominatim.openstreetmap.org https://api-maps.yandex.ru https://*.yandex.net https://*.yandex.ru",
       "font-src 'self' data:",
-      "frame-src 'none'",
+      "frame-src https://yandex.ru",
       "frame-ancestors 'none'",
       "object-src 'none'",
       "base-uri 'self'",
