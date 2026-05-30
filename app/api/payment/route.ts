@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createPayment, getConfig, type ReceiptItem } from "@/lib/yookassa";
-import { buildOrderMessage, sendToTelegram, type OrderForMessage } from "@/lib/telegram";
+import { buildOrderMessage, sendToTelegram, type OrderForMessage, type OrderLine } from "@/lib/telegram";
 import { getSessionFromRequest } from "@/lib/session";
 import { sql } from "@/lib/db";
 import { rateLimit, getIP } from "@/lib/rate-limit";
+import { verifyAndPriceLines } from "@/lib/order-pricing";
 
 export async function POST(req: Request) {
   const rl = rateLimit(`payment:${getIP(req)}`, 5, 60 * 60 * 1000);
@@ -38,27 +39,34 @@ export async function POST(req: Request) {
   }
 
   const cfg = getConfig();
+  if (!cfg) {
+    return NextResponse.json(
+      { error: "Онлайн-оплата временно недоступна. Выберите оплату при получении." },
+      { status: 503 },
+    );
+  }
+
+  // Recompute all prices server-side — never trust client-submitted prices.
+  const pricing = await verifyAndPriceLines(
+    payload.lines as Parameters<typeof verifyAndPriceLines>[0],
+    (payload as { deliveryPrice?: unknown }).deliveryPrice,
+  );
+  if (!pricing.ok) {
+    return NextResponse.json({ error: pricing.error }, { status: 400 });
+  }
+
   const orderId = `PG-${Date.now().toString(36)}-${crypto.randomBytes(2).toString("hex")}`.toUpperCase();
   const session = await getSessionFromRequest(req);
   const userId = session?.sub ?? null;
-  const enrichedPayload: OrderForMessage & { userId?: string | null } = { ...payload, orderId, userId };
-
-  if (!cfg) {
-    const message = buildOrderMessage({
-      ...enrichedPayload,
-      paid: false,
-      comment:
-        (enrichedPayload.comment ? enrichedPayload.comment + "\n" : "") +
-        "⚠️ YooKassa не настроена — оплата не выполнена, заказ только зарегистрирован.",
-    });
-    await sendToTelegram(message).catch(console.error);
-    return NextResponse.json({
-      ok: true,
-      simulated: true,
-      orderId,
-      warning: "YOOKASSA_SHOP_ID / YOOKASSA_SECRET_KEY не заданы.",
-    });
-  }
+  const enrichedPayload: OrderForMessage & { userId?: string | null } = {
+    ...payload,
+    lines: pricing.lines,
+    subtotal: pricing.itemsTotal,
+    deliveryPrice: pricing.deliveryPrice,
+    total: pricing.total,
+    orderId,
+    userId,
+  };
 
   try {
     await sql`
@@ -69,12 +77,12 @@ export async function POST(req: Request) {
     const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
     const payment = await createPayment(cfg, {
-      amountRub: enrichedPayload.total,
+      amountRub: pricing.total,
       orderId,
       description: `Заказ Pizzagram ${orderId}`,
       returnUrl: `${siteUrl}/payment-success?order=${orderId}`,
       customerPhone: toE164(enrichedPayload.phone),
-      receiptItems: buildReceiptItems(enrichedPayload),
+      receiptItems: buildReceiptItems(pricing.lines, pricing.deliveryPrice, pricing.total),
     });
 
     return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
@@ -93,20 +101,20 @@ function toE164(phone: string): string {
   return "+" + norm;
 }
 
-function buildReceiptItems(payload: OrderForMessage): ReceiptItem[] {
+function buildReceiptItems(lines: OrderLine[], deliveryPrice: number, total: number): ReceiptItem[] {
   const raw = [
-    ...payload.lines.map((l) => ({
+    ...lines.map((l) => ({
       description: `${l.name} (${l.sizeLabel})`,
       rawTotal: l.price * l.qty,
       subject: "commodity" as const,
     })),
-    ...(payload.deliveryPrice && payload.deliveryPrice > 0
-      ? [{ description: "Доставка", rawTotal: payload.deliveryPrice, subject: "service" as const }]
+    ...(deliveryPrice > 0
+      ? [{ description: "Доставка", rawTotal: deliveryPrice, subject: "service" as const }]
       : []),
   ];
 
   const gross = raw.reduce((s, i) => s + i.rawTotal, 0);
-  const target = payload.total;
+  const target = total;
 
   let allocated = 0;
   return raw.map((item, idx) => {

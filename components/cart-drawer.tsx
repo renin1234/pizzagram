@@ -156,6 +156,7 @@ export default function CartDrawer() {
       payment,
       comment,
       lines: lines.map((l) => ({
+        itemId: l.itemId,
         name: l.name,
         sizeLabel: l.sizeLabel,
         qty: l.qty,

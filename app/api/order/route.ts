@@ -3,6 +3,7 @@ import { buildOrderMessage, sendToTelegram, type OrderForMessage } from "@/lib/t
 import { getSessionFromRequest } from "@/lib/session";
 import { sql } from "@/lib/db";
 import { rateLimit, getIP } from "@/lib/rate-limit";
+import { verifyAndPriceLines } from "@/lib/order-pricing";
 
 export async function POST(req: Request) {
   const rl = rateLimit(`order:${getIP(req)}`, 5, 60 * 60 * 1000);
@@ -41,18 +42,33 @@ export async function POST(req: Request) {
     );
   }
 
+  // Recompute all prices server-side — never trust client-submitted prices.
+  const pricing = await verifyAndPriceLines(
+    payload.lines as Parameters<typeof verifyAndPriceLines>[0],
+    (payload as { deliveryPrice?: unknown }).deliveryPrice,
+  );
+  if (!pricing.ok) {
+    return NextResponse.json({ error: pricing.error }, { status: 400 });
+  }
+
+  const verifiedPayload: OrderForMessage = {
+    ...payload,
+    lines: pricing.lines,
+    subtotal: pricing.itemsTotal,
+    deliveryPrice: pricing.deliveryPrice,
+    total: pricing.total,
+  };
+
   const session = await getSessionFromRequest(req);
-  const linesTotal = payload.lines.reduce((s, l) => s + l.price * l.qty, 0);
-  const total = (payload as { total?: number }).total ?? linesTotal;
   sql`
     INSERT INTO orders (user_id, lines, total, address, payment)
-    VALUES (${session?.sub ?? null}, ${JSON.stringify(payload.lines)}, ${total}, ${payload.address ?? null}, ${payload.payment})
+    VALUES (${session?.sub ?? null}, ${JSON.stringify(pricing.lines)}, ${pricing.total}, ${payload.address ?? null}, ${payload.payment})
   `.catch((err) => console.error("DB order insert error:", err));
 
-  const message = buildOrderMessage({ ...payload, paid: false });
+  const message = buildOrderMessage({ ...verifiedPayload, paid: false });
   try {
     const result = await sendToTelegram(message);
-    return NextResponse.json({ ok: true, warning: result.warning });
+    return NextResponse.json({ ok: true, total: pricing.total, warning: result.warning });
   } catch (err) {
     console.error("Telegram send failed:", err);
     return NextResponse.json({ error: "Не удалось отправить заказ" }, { status: 502 });

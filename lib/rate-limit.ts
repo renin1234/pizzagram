@@ -29,7 +29,16 @@ export function rateLimit(
 }
 
 export function getIP(req: Request): string {
+  // x-real-ip is harder to spoof than x-forwarded-for.
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  // On Vercel the real client IP is appended last by the edge — take the last entry,
+  // not the first, which is attacker-controlled via a spoofed header.
   const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
+  if (fwd) {
+    const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
+    return parts[parts.length - 1] ?? "unknown";
+  }
   return "unknown";
 }

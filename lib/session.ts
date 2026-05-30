@@ -41,10 +41,12 @@ export async function getSessionFromRequest(req: Request): Promise<SessionPayloa
 
 /** Строит заголовок Set-Cookie для выдачи сессии. */
 export function buildSessionCookie(token: string): string {
-  return `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}${secure}`;
 }
 
 /** Строит заголовок Set-Cookie для очистки сессии. */
 export function clearSessionCookie(): string {
-  return `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`;
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `${COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`;
 }
