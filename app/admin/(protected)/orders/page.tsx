@@ -72,8 +72,8 @@ export default function AdminOrdersPage() {
       {error && <p className="text-crimson mb-4 font-body">{error}</p>}
       {loading && <p className="text-ink/50 font-body">Загрузка...</p>}
 
-      {!loading && orders.length === 0 && (
-        <p className="text-ink/50 font-body">Заказов в базе нет (гостевые заказы идут только в Telegram)</p>
+      {!loading && !error && orders.length === 0 && (
+        <p className="text-ink/50 font-body">Заказов в базе нет</p>
       )}
 
       {!loading && orders.length > 0 && (
