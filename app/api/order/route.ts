@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   sql`
     INSERT INTO orders (user_id, lines, total, address, payment)
     VALUES (${session?.sub ?? null}, ${JSON.stringify(pricing.lines)}, ${pricing.total}, ${payload.address ?? null}, ${payload.payment})
-  `.catch((err) => console.error("DB order insert error:", err));
+  `.catch((err: unknown) => console.error("DB order insert error:", err));
 
   const message = buildOrderMessage({ ...verifiedPayload, paid: false });
   try {

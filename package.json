@@ -13,7 +13,7 @@
     "test:security": "vitest run tests/security"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
+    "postgres": "^3.4.5",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "@vercel/blob": "^2.4.0",

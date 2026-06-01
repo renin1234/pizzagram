@@ -18,7 +18,8 @@ export async function GET(req: Request) {
       LIMIT 100
     `;
 
-    const orders = rows.map((o) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const orders = rows.map((o: any) => ({
       ...o,
       users: o.user_phone ? { phone: o.user_phone, name: o.user_name } : null,
     }));

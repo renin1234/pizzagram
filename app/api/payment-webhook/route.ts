@@ -90,7 +90,7 @@ export async function POST(req: Request) {
             ${order.address ?? null},
             'online'
           )
-        `.catch((err) => console.error("DB webhook order insert:", err));
+        `.catch((err: unknown) => console.error("DB webhook order insert:", err));
 
         await sql`DELETE FROM pending_orders WHERE id = ${orderId}`;
       }
