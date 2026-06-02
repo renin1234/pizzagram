@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAdminSessionFromRequest } from "@/lib/admin-session";
 import net from "net";
 
 export async function GET(req: Request) {
-  if (!(await getAdminSessionFromRequest(req))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const host = "85.239.62.55";
   const port = 5432;
 
