@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import net from "net";
 
 export async function GET(req: Request) {
-  const host = "85.239.62.55";
-  const port = 5432;
+  const dbUrl = process.env.TIMEWEB_DATABASE_URL ?? process.env.DATABASE_URL ?? "";
+  const parsed = dbUrl ? new URL(dbUrl) : null;
+  const host = parsed?.hostname ?? "85.239.43.6";
+  const port = parsed ? parseInt(parsed.port || "5432") : 5432;
 
   // Get Vercel outbound IP
   let outboundIp = "unknown";
@@ -33,6 +35,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     target: `${host}:${port}`,
+    db_url_set: !!dbUrl,
     vercel_region: process.env.VERCEL_REGION ?? "unknown",
     vercel_outbound_ip: outboundIp,
     attempts,
