@@ -18,24 +18,38 @@ export async function GET() {
     socket.on("error", (err) => resolve({ ok: false, error: err.message }));
   });
 
-  // pg (node-postgres) connection test
-  let pgResult: { ok: boolean; ms?: number; error?: string } = { ok: false, error: "not run" };
+  // pg test without SSL
+  let pgNoSsl: { ok: boolean; ms?: number; error?: string } = { ok: false, error: "not run" };
   if (dbUrl) {
     const start = Date.now();
     const client = new Client({ connectionString: dbUrl, ssl: false, connectionTimeoutMillis: 9000 });
     try {
       await client.connect();
-      await client.query("SELECT 1");
-      pgResult = { ok: true, ms: Date.now() - start };
+      pgNoSsl = { ok: true, ms: Date.now() - start };
       await client.end();
     } catch (err) {
-      pgResult = { ok: false, error: err instanceof Error ? err.message : String(err) };
+      pgNoSsl = { ok: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  }
+
+  // pg test with SSL
+  let pgSsl: { ok: boolean; ms?: number; error?: string } = { ok: false, error: "not run" };
+  if (dbUrl) {
+    const start = Date.now();
+    const client = new Client({ connectionString: dbUrl, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 9000 });
+    try {
+      await client.connect();
+      pgSsl = { ok: true, ms: Date.now() - start };
+      await client.end();
+    } catch (err) {
+      pgSsl = { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
   }
 
   return NextResponse.json({
     target: `${host}:${port}`,
     tcp: tcpResult,
-    pg_client: pgResult,
+    pg_no_ssl: pgNoSsl,
+    pg_with_ssl: pgSsl,
   });
 }
