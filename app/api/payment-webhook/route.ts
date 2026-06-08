@@ -81,7 +81,9 @@ export async function POST(req: Request) {
         }
 
         // Save order regardless of whether user is authenticated (user_id may be null).
-        sql`
+        // Awaited so the insert actually completes before the serverless function
+        // returns; the pending row is deleted below only once the order persists.
+        await sql`
           INSERT INTO orders (user_id, lines, total, address, payment)
           VALUES (
             ${order.userId ?? null},
@@ -90,7 +92,7 @@ export async function POST(req: Request) {
             ${order.address ?? null},
             'online'
           )
-        `.catch((err: unknown) => console.error("DB webhook order insert:", err));
+        `;
 
         await sql`DELETE FROM pending_orders WHERE id = ${orderId}`;
       }

@@ -1,16 +1,37 @@
-import postgres from "postgres";
+import { Pool } from "pg";
 
-let _client: ReturnType<typeof postgres> | null = null;
+let _pool: Pool | null = null;
 
-function getClient() {
-  if (_client) return _client;
+function getPool() {
+  if (_pool) return _pool;
   const url = process.env.TIMEWEB_DATABASE_URL ?? process.env.DATABASE_URL;
-  if (!url) throw new Error("DATABASE_URL не задан в переменных окружения");
-  _client = postgres(url, { max: 1, idle_timeout: 20, connect_timeout: 60, ssl: { rejectUnauthorized: false } });
-  return _client;
+  if (!url) throw new Error("DATABASE_URL не задана в переменных окружения");
+
+  _pool = new Pool({
+    connectionString: url,
+    max: 3,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 60_000,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  _pool.on("error", (err) => {
+    console.error("PostgreSQL pool error:", err);
+  });
+
+  return _pool;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sql = (strings: TemplateStringsArray, ...values: unknown[]) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (getClient() as any)(strings, ...values);
+function buildQuery(strings: TemplateStringsArray, values: unknown[]) {
+  let text = strings[0] ?? "";
+  for (let i = 0; i < values.length; i++) {
+    text += `$${i + 1}${strings[i + 1] ?? ""}`;
+  }
+  return { text, values };
+}
+
+export async function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  const query = buildQuery(strings, values);
+  const result = await getPool().query(query.text, query.values);
+  return result.rows;
+}

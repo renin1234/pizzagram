@@ -28,6 +28,6 @@ export async function GET(req: Request) {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("admin orders fetch error:", err);
-    return NextResponse.json({ error: "DB error", detail: msg }, { status: 500 });
+    return NextResponse.json({ error: "DB error" }, { status: 500 });
   }
 }

@@ -46,7 +46,7 @@ export function buildOrderMessage(o: OrderForMessage): string {
     if (l.extras && l.extras.length > 0) {
       const extrasList = l.extras.map(e => esc(e.name)).join(", ");
       const extrasTotal = l.extras.reduce((s, e) => s + e.price, 0) * l.qty;
-      return `${base}\n  ↳ \\+ ${extrasList} \\(${rub(extrasTotal)}\\)`;
+      return `${base}\n  ↳ + ${extrasList} (${rub(extrasTotal)})`;
     }
     return base;
   }).join("\n");
@@ -102,9 +102,10 @@ export async function sendToTelegram(message: string): Promise<{ sent: boolean; 
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
   if (!token || !chatId) {
-    console.log("\n=== [PIZZAGRAM · Telegram env not configured] ===");
-    console.log(message);
-    console.log("=================================================\n");
+    console.warn("\n=== [PIZZAGRAM · Telegram env not configured] ===");
+    console.warn("Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID, иначе уведомления о заказах не приходят.");
+    console.warn(message);
+    console.warn("=================================================\n");
     return {
       sent: false,
       warning:

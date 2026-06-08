@@ -60,17 +60,38 @@ export async function POST(req: Request) {
   };
 
   const session = await getSessionFromRequest(req);
-  sql`
-    INSERT INTO orders (user_id, lines, total, address, payment)
-    VALUES (${session?.sub ?? null}, ${JSON.stringify(pricing.lines)}, ${pricing.total}, ${payload.address ?? null}, ${payload.payment})
-  `.catch((err: unknown) => console.error("DB order insert error:", err));
+
+  // Persist the order. This MUST be awaited: in a serverless runtime a floating
+  // promise is dropped when the response returns, so a fire-and-forget insert
+  // silently never reaches the DB even when the connection itself is healthy.
+  let dbSaved = false;
+  try {
+    await sql`
+      INSERT INTO orders (user_id, lines, total, address, payment)
+      VALUES (${session?.sub ?? null}, ${JSON.stringify(pricing.lines)}, ${pricing.total}, ${payload.address ?? null}, ${payload.payment})
+    `;
+    dbSaved = true;
+  } catch (err) {
+    console.error("DB order insert error:", err);
+  }
 
   const message = buildOrderMessage({ ...verifiedPayload, paid: false });
   try {
     const result = await sendToTelegram(message);
-    return NextResponse.json({ ok: true, total: pricing.total, warning: result.warning });
+    return NextResponse.json({ ok: true, total: pricing.total, dbSaved, warning: result.warning });
   } catch (err) {
     console.error("Telegram send failed:", err);
-    return NextResponse.json({ error: "Не удалось отправить заказ" }, { status: 502 });
+    // Do not fail the checkout after the order was already persisted.
+    // Telegram can be blocked/unreachable on some networks; the admin panel/DB
+    // must still receive the order and the client should see success.
+    if (dbSaved) {
+      return NextResponse.json({
+        ok: true,
+        total: pricing.total,
+        dbSaved,
+        warning: "Заказ сохранён, но Telegram-уведомление не отправилось",
+      });
+    }
+    return NextResponse.json({ error: "Не удалось сохранить и отправить заказ", dbSaved }, { status: 502 });
   }
 }
