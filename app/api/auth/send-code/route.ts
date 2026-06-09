@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { randomInt } from "crypto";
 import { sql } from "@/lib/db";
 import { sendSms } from "@/lib/sms";
 import { rateLimit, getIP } from "@/lib/rate-limit";
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
 
   await sql`DELETE FROM otp_codes WHERE phone = ${phone} AND used = FALSE`;
 
-  const code = String(Math.floor(1000 + Math.random() * 9000));
+  const code = String(randomInt(1000, 10000));
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
   try {
