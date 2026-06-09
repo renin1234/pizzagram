@@ -29,9 +29,9 @@ export type DeliveryZone = {
  * Зоны должны идти по возрастанию радиуса.
  */
 export const DELIVERY_ZONES: DeliveryZone[] = [
-  { id: 1, name: "Зона 1", maxRadiusKm: 3, price: 149, minOrder: 600, color: "#3DA35D" },
-  { id: 2, name: "Зона 2", maxRadiusKm: 6, price: 249, minOrder: 800, color: "#E8A33D" },
-  { id: 3, name: "Зона 3", maxRadiusKm: 9, price: 349, minOrder: 1000, color: "#FF4D39" },
+  { id: 1, name: "Зона 1", maxRadiusKm: 3, price: 149, minOrder: 0, color: "#3DA35D" },
+  { id: 2, name: "Зона 2", maxRadiusKm: 6, price: 249, minOrder: 0, color: "#E8A33D" },
+  { id: 3, name: "Зона 3", maxRadiusKm: 9, price: 349, minOrder: 0, color: "#FF4D39" },
 ];
 
 /** ⚠️ ЗАГЛУШКА — сумма заказа, начиная с которой доставка бесплатна. */
