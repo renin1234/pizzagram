@@ -98,6 +98,7 @@ export async function POST(req: Request) {
       }
     } catch (err) {
       console.error("Pending order lookup failed:", orderId, err);
+      return new Response("RETRY", { status: 500 });
     }
   }
 
