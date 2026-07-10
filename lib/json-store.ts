@@ -3,6 +3,7 @@ import { sql } from "@/lib/db";
 const TABLE_READY: { value: boolean } = { value: false };
 
 export function hasJsonStoreDatabase(): boolean {
+  if (process.env.NEXT_PHASE === "phase-production-build") return false;
   return Boolean(process.env.TIMEWEB_DATABASE_URL ?? process.env.DATABASE_URL);
 }
 
