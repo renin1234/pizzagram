@@ -34,9 +34,23 @@ export type CreatePaymentInput = {
   receiptItems: ReceiptItem[];
 };
 
+export class YooKassaApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly body: string,
+  ) {
+    super(message);
+  }
+
+  get isInvalidCredentials() {
+    return this.status === 401 && this.body.includes("invalid_credentials");
+  }
+}
+
 export function getConfig(): YooKassaConfig | null {
-  const shopId = process.env.YOOKASSA_SHOP_ID;
-  const secretKey = process.env.YOOKASSA_SECRET_KEY;
+  const shopId = process.env.YOOKASSA_SHOP_ID?.trim();
+  const secretKey = process.env.YOOKASSA_SECRET_KEY?.trim();
   if (!shopId || !secretKey) return null;
   return { shopId, secretKey };
 }
@@ -71,7 +85,8 @@ export async function createPayment(
   });
 
   if (!res.ok) {
-    throw new Error(`YooKassa createPayment ${res.status}: ${await res.text()}`);
+    const body = await res.text();
+    throw new YooKassaApiError(`YooKassa createPayment ${res.status}: ${body}`, res.status, body);
   }
   const data = await res.json();
   if (!data.confirmation?.confirmation_url) {

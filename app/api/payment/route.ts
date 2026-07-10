@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { createPayment, getConfig, type ReceiptItem } from "@/lib/yookassa";
+import { createPayment, getConfig, YooKassaApiError, type ReceiptItem } from "@/lib/yookassa";
 import { type OrderForMessage, type OrderLine } from "@/lib/telegram";
 import { getSessionFromRequest } from "@/lib/session";
 import { sql } from "@/lib/db";
@@ -89,6 +89,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
   } catch (err) {
     console.error("YooKassa payment failed:", err);
+    if (err instanceof YooKassaApiError && err.isInvalidCredentials) {
+      return NextResponse.json(
+        { error: "Онлайн-оплата временно недоступна. Выберите оплату при получении." },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: "Не удалось создать платёж. Попробуйте ещё раз или выберите оплату при получении." },
       { status: 502 },
