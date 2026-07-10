@@ -3,12 +3,17 @@
  * falls back to bundled data/menu.json in dev (when BLOB_READ_WRITE_TOKEN is absent).
  */
 import { put, list } from "@vercel/blob";
+import { hasJsonStoreDatabase, readJsonValue, writeJsonValue } from "@/lib/json-store";
 import type { MenuItem } from "./menu";
 import menuFallback from "../data/menu.json";
 
 const BLOB_PATH = "data/menu.json";
+const STORE_KEY = "menu";
 
 export async function readMenu(): Promise<MenuItem[]> {
+  const stored = await readJsonValue<MenuItem[]>(STORE_KEY);
+  if (stored) return stored;
+
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return menuFallback as unknown as MenuItem[];
   }
@@ -27,6 +32,15 @@ export async function readMenu(): Promise<MenuItem[]> {
 }
 
 export async function writeMenu(items: MenuItem[]): Promise<void> {
+  if (hasJsonStoreDatabase()) {
+    await writeJsonValue(STORE_KEY, items);
+    return;
+  }
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("Нет доступного хранилища меню: DATABASE_URL и BLOB_READ_WRITE_TOKEN не настроены");
+  }
+
   await put(BLOB_PATH, JSON.stringify(items, null, 2), {
     access: "private",
     addRandomSuffix: false,

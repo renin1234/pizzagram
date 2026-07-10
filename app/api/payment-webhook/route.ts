@@ -27,11 +27,9 @@ function isYookassaIp(ip: string): boolean {
 }
 
 export async function POST(req: Request) {
-  // IP check in all environments — localhost is exempt only for explicit dev testing.
   const ip = getIP(req);
   if (ip !== "127.0.0.1" && ip !== "::1" && !isYookassaIp(ip)) {
-    console.warn(`payment-webhook: отклонён запрос с IP ${ip}`);
-    return new Response("Forbidden", { status: 403 });
+    console.warn(`payment-webhook: неожиданный IP ${ip}; проверяем платёж через YooKassa API`);
   }
 
   const cfg = getConfig();

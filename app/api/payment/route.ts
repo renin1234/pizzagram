@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createPayment, getConfig, type ReceiptItem } from "@/lib/yookassa";
-import { buildOrderMessage, sendToTelegram, type OrderForMessage, type OrderLine } from "@/lib/telegram";
+import { type OrderForMessage, type OrderLine } from "@/lib/telegram";
 import { getSessionFromRequest } from "@/lib/session";
 import { sql } from "@/lib/db";
 import { rateLimit, getIP } from "@/lib/rate-limit";

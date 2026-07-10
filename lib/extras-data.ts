@@ -3,14 +3,19 @@
  * falls back to bundled data/extras.json in dev (when BLOB_READ_WRITE_TOKEN is absent).
  */
 import { put, list } from "@vercel/blob";
+import { hasJsonStoreDatabase, readJsonValue, writeJsonValue } from "@/lib/json-store";
 import type { Extra } from "./extras";
 import extrasFallback from "../data/extras.json";
 
 type ExtrasFile = { extras: Extra[]; sauces: Extra[] };
 
 const BLOB_PATH = "data/extras.json";
+const STORE_KEY = "extras";
 
 export async function readExtras(): Promise<ExtrasFile> {
+  const stored = await readJsonValue<ExtrasFile>(STORE_KEY);
+  if (stored) return stored;
+
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return extrasFallback as ExtrasFile;
   }
@@ -29,6 +34,15 @@ export async function readExtras(): Promise<ExtrasFile> {
 }
 
 export async function writeExtras(data: ExtrasFile): Promise<void> {
+  if (hasJsonStoreDatabase()) {
+    await writeJsonValue(STORE_KEY, data);
+    return;
+  }
+
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("Нет доступного хранилища добавок: DATABASE_URL и BLOB_READ_WRITE_TOKEN не настроены");
+  }
+
   await put(BLOB_PATH, JSON.stringify(data, null, 2), {
     access: "private",
     addRandomSuffix: false,
