@@ -4,14 +4,14 @@ let _pool: Pool | null = null;
 
 function getPool() {
   if (_pool) return _pool;
-  const url = process.env.TIMEWEB_DATABASE_URL ?? process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.TIMEWEB_DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL не задана в переменных окружения");
 
   _pool = new Pool({
     connectionString: url,
     max: 3,
     idleTimeoutMillis: 20_000,
-    connectionTimeoutMillis: 60_000,
+    connectionTimeoutMillis: 10_000,
     ssl: { rejectUnauthorized: false },
   });
 
