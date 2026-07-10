@@ -89,7 +89,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, orderId, paymentUrl: payment.confirmationUrl });
   } catch (err) {
     console.error("YooKassa payment failed:", err);
-    if (err instanceof YooKassaApiError && err.isInvalidCredentials) {
+    const message = err instanceof Error ? err.message : String(err);
+    const isInvalidCredentials =
+      (err instanceof YooKassaApiError && err.isInvalidCredentials) ||
+      (message.includes("YooKassa createPayment 401") && message.includes("invalid_credentials"));
+    if (isInvalidCredentials) {
       return NextResponse.json(
         { error: "Онлайн-оплата временно недоступна. Выберите оплату при получении." },
         { status: 503 },
