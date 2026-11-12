@@ -74,6 +74,7 @@ export default function AdminMenuItemPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -90,6 +91,29 @@ export default function AdminMenuItemPage() {
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        set("image", data.url);
+      } else {
+        setError(data.error ?? "Ошибка загрузки фото");
+      }
+    } catch {
+      setError("Не удалось загрузить фото");
+    } finally {
+      setUploading(false);
+      e.target.value = ""; // allow re-selecting the same file
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -225,16 +249,35 @@ export default function AdminMenuItemPage() {
           </div>
         </div>
 
-        {/* Image URL */}
+        {/* Photo: upload from computer OR paste a URL */}
         <div>
-          <label className={labelClass}>URL изображения</label>
+          <label className={labelClass}>Фото позиции</label>
+
+          <label
+            className={`inline-flex items-center gap-2 font-display uppercase tracking-wider text-sm px-4 py-3 border-2 border-ink cursor-pointer transition-colors ${
+              uploading ? "opacity-60 pointer-events-none" : "hover:bg-ink hover:text-cream"
+            }`}
+          >
+            {uploading ? "Загрузка..." : "Загрузить фото с компьютера"}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
+
+          <p className="mt-2 text-xs text-smoke">
+            Или вставьте ссылку на картинку вручную:
+          </p>
           <input
             type="url"
             value={form.image}
             onChange={(e) => set("image", e.target.value)}
             required
             placeholder="https://..."
-            className={inputClass}
+            className={`${inputClass} mt-1`}
           />
           {form.image && (
             // eslint-disable-next-line @next/next/no-img-element
