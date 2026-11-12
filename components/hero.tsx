@@ -57,7 +57,7 @@ export default function Hero() {
             {/* small stats row */}
             <div className="mt-10 grid grid-cols-3 max-w-lg dotline-wrap animate-rise" style={{ animationDelay: "460ms" }}>
               <Stat big="60" small="минут — среднее время доставки" />
-              <Stat big="23" small="вида пиццы каждый день" />
+              <Stat big="28" small="видов пиццы каждый день" />
               <Stat big="5.0" small="★ на Яндекс.Картах · 72 отзыва" />
             </div>
           </div>
