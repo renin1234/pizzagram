@@ -4,7 +4,6 @@ import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { X, Minus, Plus, ShoppingBag, ArrowLeft, Check } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
-import { useAuth } from "@/lib/auth-store";
 import { cn, formatRub, shopStatus } from "@/lib/utils";
 import { deliveryCost } from "@/lib/delivery-zones";
 import DeliveryMap, { type AddressResult } from "./delivery-map";
@@ -45,16 +44,6 @@ export default function CartDrawer() {
   const [floor, setFloor] = useState("");
   const [privateHouse, setPrivateHouse] = useState(false);
 
-  const authUser = useAuth((s) => s.user);
-
-  useEffect(() => {
-    if (authUser) {
-      if (authUser.name) setName(authUser.name);
-      if (authUser.phone) setPhone(authUser.phone);
-      if (authUser.address) setAddress(authUser.address);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser]);
   const [payment, setPayment] = useState<Payment>("online");
   const [comment, setComment] = useState("");
   const [delivery, setDelivery] = useState<AddressResult | null>(null);
@@ -615,7 +604,7 @@ function CheckoutForm(props: {
                   },
                   {
                     id: "cash" as Payment,
-                    title: "Наличными",
+                    title: "Оплата при получении",
                     desc: "При получении в пиццерии.",
                   },
                 ]
