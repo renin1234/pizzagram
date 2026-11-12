@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ShoppingBag, Phone, MapPin } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { cn, formatRub } from "@/lib/utils";
-import UserMenu from "@/components/user-menu";
 
 const NAV = [
   { href: "#menu", label: "Меню" },
@@ -101,8 +100,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <UserMenu />
-
             <button
               onClick={openDrawer}
               aria-label="Открыть корзину"
