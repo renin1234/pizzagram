@@ -28,7 +28,7 @@ export default function MenuSection({ initialMenu }: { initialMenu: MenuItem[] }
               Что у нас <span className="quote font-normal italic text-ink/80">из&nbsp;печи</span>
             </h2>
             <p className="quote text-lg text-ink/80 mt-4 max-w-xl">
-              23 пиццы по фиксированной цене. Лепим тесто руками каждое утро,
+              28 пицц по фиксированной цене. Лепим тесто руками каждое утро,
               печём 3–4 минуты при 460°C.
             </p>
           </div>
