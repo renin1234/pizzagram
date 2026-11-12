@@ -3,7 +3,6 @@ import { Inter_Tight } from "next/font/google";
 import CookieBanner from "@/components/cookie-banner";
 import PizzaCursor from "@/components/pizza-cursor";
 import PizzaAssistant from "@/components/pizza-assistant";
-import AuthProvider from "@/components/auth-provider";
 import ClosedBanner from "@/components/closed-banner";
 import "./globals.css";
 
@@ -39,10 +38,8 @@ export default function RootLayout({
   return (
     <html lang="ru" className={interTight.variable}>
       <body className="font-body antialiased">
-        <AuthProvider>
-          <ClosedBanner />
-          {children}
-        </AuthProvider>
+        <ClosedBanner />
+        {children}
         <CookieBanner />
         <PizzaCursor />
         <PizzaAssistant />
