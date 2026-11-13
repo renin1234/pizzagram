@@ -8,6 +8,7 @@ const nextConfig = {
       { protocol: "https", hostname: "plus.unsplash.com" },
       { protocol: "https", hostname: "static.tildacdn.com" },
       { protocol: "https", hostname: "thb.tildacdn.com" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
 
@@ -28,7 +29,7 @@ const nextConfig = {
       // Next.js hydration requires unsafe-inline; Yandex Maps loads scripts from yastatic.net
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api-maps.yandex.ru https://yandex.ru https://yastatic.net",
       "style-src 'self' 'unsafe-inline' https://yastatic.net",
-      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://static.tildacdn.com https://thb.tildacdn.com https://*.yandex.net https://*.yandex.ru https://yastatic.net",
+      "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://static.tildacdn.com https://thb.tildacdn.com https://*.public.blob.vercel-storage.com https://*.yandex.net https://*.yandex.ru https://yastatic.net",
       "connect-src 'self' https://api.groq.com https://nominatim.openstreetmap.org https://api-maps.yandex.ru https://*.yandex.net https://*.yandex.ru https://yastatic.net",
       "font-src 'self' data:",
       "frame-src https://yandex.ru",
